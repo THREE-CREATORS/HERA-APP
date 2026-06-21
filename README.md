@@ -2,69 +2,111 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>HERA Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HERA Pro System</title>
     <style>
         :root { 
             --nav-blue: #001f3f; 
             --accent-yellow: #ffcc00; 
-            --text-black: #000000;
-            --btn-green: #28a745;
-            --btn-white: #ffffff;
+            --text-black: #000000; 
         }
-        body { margin: 0; background: var(--nav-blue); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; }
-        .section { padding: 40px 20px; display: none; text-align: center; }
-        #home { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
+        body { 
+            margin: 0; 
+            background: var(--nav-blue); 
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
         
-        .btn { padding: 20px; border-radius: 15px; border: none; cursor: pointer; font-weight: bold; margin: 10px; width: 90%; max-width: 400px; transition: 0.3s; color: var(--text-black); }
+        .section { padding: 20px; display: none; text-align: center; width: 100%; }
+        #home { display: flex; flex-direction: column; justify-content: center; height: 100vh; }
         
-        /* Estilos específicos */
-        .btn-yellow { background: var(--accent-yellow); }
-        .btn-green { background: var(--btn-green); color: white; }
-        .btn-white { background: var(--btn-white); color: var(--text-black); }
+        .btn { 
+            padding: 20px; 
+            border-radius: 15px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin: 10px 0; 
+            width: 85%; 
+            max-width: 400px; 
+            color: var(--text-black); 
+            background: var(--accent-yellow); 
+        }
         
-        .display-area { background: #000; padding: 20px; border-radius: 10px; margin-top: 20px; min-height: 100px; border: 1px solid var(--accent-yellow); }
+        .visor { 
+            background: #000; 
+            padding: 30px; 
+            border-radius: 15px; 
+            margin: 20px auto; 
+            width: 85%; 
+            border: 2px solid var(--accent-yellow); 
+            color: #fff; 
+            font-size: 1.2rem; 
+            min-height: 200px; 
+        }
     </style>
 </head>
 <body onclick="iniciarVoz()">
 
     <div id="home" class="section" style="display:block;">
         <h1>HERA</h1>
-        <button class="btn btn-yellow" onclick="showSection('dashboard')">EMPIEZA A DESCUBRIR CON HERA</button>
+        <button class="btn" onclick="showSection('dashboard')">EMPIEZA A DESCUBRIR CON HERA</button>
     </div>
 
     <div id="dashboard" class="section">
         <h1>Panel de Control</h1>
-        
-        <button class="btn btn-white" onclick="conectarRobot()">Conectar / Conectado</button>
-        <button class="btn btn-yellow" onclick="cargarInfo('traducciones')">Traducción de Lenguajes</button>
-        <button class="btn btn-yellow" onclick="cargarInfo('piezas')">Identificación de Piezas</button>
-        <button class="btn btn-green" onclick="activarMotores()">Empezar Lecturas</button>
-        
-        <div id="data-display" class="display-area">Esperando datos...</div>
-        <br>
-        <button class="btn btn-yellow" style="width: 50%;" onclick="showSection('home')">SALIR</button>
+        <button id="btn-conectar" class="btn" onclick="conectarRobot()">CONECTAR</button>
+        <button class="btn" onclick="abrirVisor('traducciones')">TRADUCCIÓN DE LENGUAJES</button>
+        <button class="btn" onclick="abrirVisor('piezas')">IDENTIFICACIÓN DE PIEZAS</button>
+        <button class="btn" onclick="ejecutarAccion('motores/activar')">EMPEZAR LECTURAS</button>
+        <button class="btn" onclick="showSection('home')">SALIR</button>
+    </div>
+
+    <div id="visor-datos" class="section">
+        <h2 id="titulo-visor">Información</h2>
+        <div class="visor" id="contenido-visor">Cargando datos desde la nube...</div>
+        <button class="btn" onclick="showSection('dashboard')">VOLVER AL PANEL</button>
     </div>
 
     <script>
         const IP_ROBOT = "http://192.168.4.1";
 
-        function conectarRobot() {
-            fetch(IP_ROBOT + '/status')
-            .then(r => document.getElementById('data-display').innerText = "Estado: Conectado correctamente")
-            .catch(e => document.getElementById('data-display').innerText = "Error: HERA no encontrada");
+        // Función para cambiar a la interfaz de visualización
+        async function abrirVisor(tipo) {
+            document.getElementById('titulo-visor').innerText = tipo.toUpperCase();
+            document.getElementById('contenido-visor').innerText = "Consultando a la nube...";
+            showSection('visor-datos');
+            
+            try {
+                const response = await fetch(IP_ROBOT + '/' + tipo);
+                const data = await response.text();
+                document.getElementById('contenido-visor').innerText = data;
+            } catch (error) {
+                document.getElementById('contenido-visor').innerText = "Error: No se pudo obtener la información de " + tipo;
+            }
         }
 
-        function cargarInfo(tipo) {
-            fetch(IP_ROBOT + '/' + tipo)
-            .then(r => r.text())
-            .then(data => document.getElementById('data-display').innerText = data)
-            .catch(e => document.getElementById('data-display').innerText = "Error cargando datos de " + tipo);
+        async function conectarRobot() {
+            const btn = document.getElementById('btn-conectar');
+            try {
+                const response = await fetch(IP_ROBOT + '/status');
+                if(response.ok) {
+                    btn.innerText = "CONECTADO";
+                    const msg = new SpeechSynthesisUtterance("Conectado exitosamente.");
+                    msg.lang = 'es-ES';
+                    window.speechSynthesis.speak(msg);
+                }
+            } catch (error) { alert("Error de conexión con el robot"); }
         }
 
-        function activarMotores() {
-            fetch(IP_ROBOT + '/motores/activar')
-            .then(r => alert("Motores activados. Lectura en proceso."))
-            .catch(e => alert("Error al activar motores"));
+        function ejecutarAccion(ruta) {
+            fetch(IP_ROBOT + '/' + ruta)
+            .then(() => alert("Acción ejecutada correctamente"))
+            .catch(() => alert("Error al ejecutar acción"));
         }
 
         function showSection(id) {
