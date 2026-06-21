@@ -3,73 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HERA System</title>
+    <title>HERA Pro System</title>
     <style>
-        :root { --nav-blue: #001f3f; --accent-yellow: #ffcc00; --silver: #c0c0c0; }
-        body { margin: 0; background: #001f3f; color: white; font-family: sans-serif; height: 100vh; overflow: hidden; }
+        :root { --nav-blue: #001f3f; --accent-yellow: #ffcc00; --silver: #c0c0c0; --danger: #ff4d4d; }
+        body { margin: 0; background: #001f3f; color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow-y: auto; }
 
-        /* Barra superior */
-        .top-bar { padding: 15px; border-bottom: 1px solid var(--silver); display: flex; align-items: center; }
-        .menu-btn { background: none; border: 1px solid var(--silver); color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
-
-        /* Pantalla de inicio */
-        #home { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 80vh; }
-        .btn-main { background: var(--accent-yellow); color: var(--nav-blue); padding: 20px 40px; border-radius: 50px; font-weight: bold; border: none; font-size: 1.2rem; cursor: pointer; }
-
-        /* Lista de usuarios (oculta inicialmente) */
-        #user-list { display: none; padding: 20px; }
+        .top-bar { padding: 15px; border-bottom: 2px solid var(--silver); display: flex; justify-content: space-between; }
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-exit { background: var(--danger); color: white; }
         
-        /* Botón circular "+" */
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--accent-yellow); border-radius: 50%; font-size: 30px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
+        .section { padding: 20px; display: none; }
+        #home { display: block; text-align: center; margin-top: 50px; }
+        
+        .user-card { background: rgba(255,255,255,0.1); padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--silver); }
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--accent-yellow); border-radius: 50%; border: none; font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        /* Formulario registro (oculto) */
-        #register-form { display: none; padding: 20px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        #camera-preview { width: 100%; max-width: 300px; border: 3px solid var(--silver); border-radius: 15px; margin-top: 10px; }
     </style>
 </head>
-<body onclick="iniciarVoz()"> <div class="top-bar">
-        <button class="menu-btn" onclick="toggleMenu()">OPCIONES</button>
+<body onclick="iniciarVoz()">
+
+    <div class="top-bar">
+        <button class="btn" onclick="showSection('user-list')">OPCIONES</button>
+        <button class="btn btn-exit" onclick="showSection('home')">SALIR</button>
     </div>
 
-    <div id="home">
-        <h1>BIENVENIDO A HERA</h1>
-        <button class="btn-main">INICIA SESIÓN</button>
+    <div id="home" class="section">
+        <h1>SISTEMA HERA</h1>
+        <button class="btn" style="background: var(--accent-yellow);" onclick="iniciarSesion()">INICIA SESIÓN</button>
     </div>
 
-    <div id="user-list">
+    <div id="user-list" class="section">
         <h2>Usuarios Registrados</h2>
-        <ul><li>Juan Pérez</li><li>María García</li></ul>
+        <div id="users-container"></div>
     </div>
 
-    <div id="register-form">
-        <h2>Registrar Usuario</h2>
-        <input type="text" placeholder="Nombre">
-        <input type="text" placeholder="Apellido">
-        <button class="btn-main">Activar Reconocimiento Facial</button>
+    <div id="register-form" class="section">
+        <h2>Nuevo Usuario</h2>
+        <video id="camera-preview" autoplay playsinline></video>
+        <input type="text" id="nombre" placeholder="Nombre" style="display:block; width:90%; padding:10px; margin:10px 0;">
+        <button class="btn" style="background:var(--accent-yellow)" onclick="guardarUsuario()">REGISTRAR Y CAPTURAR</button>
     </div>
 
-    <button class="fab" onclick="showRegister()">+</button>
+    <button class="fab" onclick="showSection('register-form')">+</button>
 
     <script>
-        // Iniciar voz automáticamente al primer toque
+        // Lógica de Voz
         let vozIniciada = false;
         function iniciarVoz() {
             if(!vozIniciada) {
-                const msg = new SpeechSynthesisUtterance("Bienvenido al sistema Hera. Por favor, inicia sesión.");
-                msg.lang = 'es-ES';
+                const msg = new SpeechSynthesisUtterance("Bienvenido a Hera. Iniciando sistemas.");
                 window.speechSynthesis.speak(msg);
                 vozIniciada = true;
             }
         }
 
-        function toggleMenu() { 
-            document.getElementById('home').style.display = 'none';
-            document.getElementById('user-list').style.display = 'block';
+        // Navegación
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            if(id === 'register-form') activarCamara();
         }
 
-        function showRegister() {
-            document.getElementById('user-list').style.display = 'none';
-            document.getElementById('register-form').style.display = 'block';
+        // Cámara
+        async function activarCamara() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('camera-preview').srcObject = stream;
+            } catch(e) { alert("Error al acceder a la cámara"); }
+        }
+
+        // Gestión de usuarios
+        function guardarUsuario() {
+            const nombre = document.getElementById('nombre').value;
+            const container = document.getElementById('users-container');
+            const div = document.createElement('div');
+            div.className = 'user-card';
+            div.innerHTML = `<span>${nombre}</span> <button class="btn btn-exit" onclick="this.parentElement.remove()">Eliminar</button>`;
+            container.appendChild(div);
+            showSection('user-list');
         }
     </script>
 </body>
