@@ -2,22 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HERA Dashboard</title>
     <style>
-        :root { --nav-blue: #001f3f; --accent-yellow: #ffcc00; --silver: #c0c0c0; }
-        body { margin: 0; background: #001f3f; color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow-y: auto; }
-
+        :root { --nav-blue: #001f3f; --accent-yellow: #ffcc00; --silver: #c0c0c0; --danger: #ff4d4d; }
+        body { margin: 0; background: #001f3f; color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; }
         .section { padding: 40px 20px; display: none; text-align: center; }
         #home { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
-        
-        h1 { color: white; margin-bottom: 30px; }
-        .btn { padding: 20px 30px; border-radius: 15px; border: none; cursor: pointer; font-weight: bold; font-size: 1.1rem; margin: 10px; width: 90%; max-width: 400px; transition: 0.3s; }
-        
+        .btn { padding: 20px; border-radius: 15px; border: none; cursor: pointer; font-weight: bold; margin: 10px; width: 90%; max-width: 400px; transition: 0.3s; }
         .btn-main { background: var(--accent-yellow); color: var(--nav-blue); }
         .btn-opt { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--silver); }
-        
-        .status-badge { padding: 5px 15px; border-radius: 20px; background: #28a745; display: inline-block; margin-bottom: 20px; font-size: 0.8rem; }
+        .display-area { background: #000; padding: 20px; border-radius: 10px; margin-top: 20px; min-height: 100px; border: 1px solid var(--silver); }
     </style>
 </head>
 <body onclick="iniciarVoz()">
@@ -28,32 +22,51 @@
     </div>
 
     <div id="dashboard" class="section">
-        <div class="status-badge">● CONECTADO</div>
         <h1>Panel de Control</h1>
+        <button class="btn btn-opt" onclick="conectarRobot()">Conectar / Conectado</button>
+        <button class="btn btn-opt" onclick="cargarInfo('traducciones')">Traducción de Lenguajes</button>
+        <button class="btn btn-opt" onclick="cargarInfo('piezas')">Identificación de Piezas</button>
+        <button class="btn btn-opt" onclick="activarMotores()">Empezar Lecturas</button>
         
-        <button class="btn btn-opt" onclick="alert('Iniciando traducción...')">Traducción de Lenguajes</button>
-        <button class="btn btn-opt" onclick="alert('Identificando piezas...')">Identificación de Piezas</button>
-        <button class="btn btn-opt" onclick="alert('Lecturas en curso. Tiempo faltante: 12 min.')">Empezar las lecturas / Tiempo faltante</button>
-        <button class="btn btn-opt" onclick="alert('Reconectando sistema...')">Conectar / Conectado</button>
-        
-        <br><br>
-        <button class="btn" style="background:transparent; border: 1px solid #ff4d4d; color: #ff4d4d; width: 50%;" onclick="showSection('home')">SALIR</button>
+        <div id="data-display" class="display-area">Esperando datos...</div>
+        <br>
+        <button class="btn" style="background:transparent; border:1px solid var(--danger); color:var(--danger);" onclick="showSection('home')">SALIR</button>
     </div>
 
     <script>
+        const IP_ROBOT = "http://192.168.4.1"; // IP de tu placa ESP32
+
+        function conectarRobot() {
+            fetch(IP_ROBOT + '/status')
+            .then(r => document.getElementById('data-display').innerText = "Estado: Conectado correctamente")
+            .catch(e => document.getElementById('data-display').innerText = "Error: No se puede conectar con HERA");
+        }
+
+        function cargarInfo(tipo) {
+            fetch(IP_ROBOT + '/' + tipo)
+            .then(r => r.text())
+            .then(data => document.getElementById('data-display').innerText = data)
+            .catch(e => document.getElementById('data-display').innerText = "Error cargando " + tipo);
+        }
+
+        function activarMotores() {
+            fetch(IP_ROBOT + '/motores/activar')
+            .then(r => alert("Motores activados, iniciando lectura..."))
+            .catch(e => alert("Error al activar motores"));
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+
         function iniciarVoz() {
-            // Solo habla una vez gracias a localStorage
             if(!localStorage.getItem('bienvenida_hera')) {
                 const msg = new SpeechSynthesisUtterance("Bienvenido a Hera, aquí podrás descubrir nuestro pasado.");
                 msg.lang = 'es-ES';
                 window.speechSynthesis.speak(msg);
                 localStorage.setItem('bienvenida_hera', 'true');
             }
-        }
-
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
         }
     </script>
 </body>
