@@ -2,77 +2,74 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bienvenida HERA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HERA System</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #001f3f, #003366); /* Azul marino profundo */
-            color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            overflow: hidden;
-        }
+        :root { --nav-blue: #001f3f; --accent-yellow: #ffcc00; --silver: #c0c0c0; }
+        body { margin: 0; background: #001f3f; color: white; font-family: sans-serif; height: 100vh; overflow: hidden; }
 
-        /* Detalles Plateados y Blancos */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(192, 192, 192, 0.5); /* Color plata */
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-            width: 80%;
-            max-width: 500px;
-        }
+        /* Barra superior */
+        .top-bar { padding: 15px; border-bottom: 1px solid var(--silver); display: flex; align-items: center; }
+        .menu-btn { background: none; border: 1px solid var(--silver); color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
 
-        h1 {
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            font-size: 2rem;
-            margin-bottom: 30px;
-        }
+        /* Pantalla de inicio */
+        #home { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 80vh; }
+        .btn-main { background: var(--accent-yellow); color: var(--nav-blue); padding: 20px 40px; border-radius: 50px; font-weight: bold; border: none; font-size: 1.2rem; cursor: pointer; }
 
-        /* Detalle amarillo */
-        .btn-start {
-            background: #ffcc00; /* Amarillo HERA */
-            color: #001f3f;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+        /* Lista de usuarios (oculta inicialmente) */
+        #user-list { display: none; padding: 20px; }
+        
+        /* Botón circular "+" */
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--accent-yellow); border-radius: 50%; font-size: 30px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
 
-        .btn-start:active { transform: scale(0.9); }
+        /* Formulario registro (oculto) */
+        #register-form { display: none; padding: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
     </style>
 </head>
-<body>
-
-    <div class="glass-card">
-        <h1>BIENVENIDO A LA PÁGINA WEB DE HERA</h1>
-        <button class="btn-start" onclick="iniciarHERA()">INICIAR SISTEMA</button>
+<body onclick="iniciarVoz()"> <div class="top-bar">
+        <button class="menu-btn" onclick="toggleMenu()">OPCIONES</button>
     </div>
 
+    <div id="home">
+        <h1>BIENVENIDO A HERA</h1>
+        <button class="btn-main">INICIA SESIÓN</button>
+    </div>
+
+    <div id="user-list">
+        <h2>Usuarios Registrados</h2>
+        <ul><li>Juan Pérez</li><li>María García</li></ul>
+    </div>
+
+    <div id="register-form">
+        <h2>Registrar Usuario</h2>
+        <input type="text" placeholder="Nombre">
+        <input type="text" placeholder="Apellido">
+        <button class="btn-main">Activar Reconocimiento Facial</button>
+    </div>
+
+    <button class="fab" onclick="showRegister()">+</button>
+
     <script>
-        function iniciarHERA() {
-            // HERA Hablando
-            const mensaje = new SpeechSynthesisUtterance("Bienvenido a la página web de Hera");
-            mensaje.lang = 'es-ES';
-            window.speechSynthesis.speak(mensaje);
-            
-            // Aquí puedes redirigir a tu dashboard principal después de 2 segundos
-            setTimeout(() => {
-                alert("Entrando al sistema...");
-                // window.location.href = "dashboard.html"; // Descomenta esto cuando tengas el otro archivo
-            }, 2000);
+        // Iniciar voz automáticamente al primer toque
+        let vozIniciada = false;
+        function iniciarVoz() {
+            if(!vozIniciada) {
+                const msg = new SpeechSynthesisUtterance("Bienvenido al sistema Hera. Por favor, inicia sesión.");
+                msg.lang = 'es-ES';
+                window.speechSynthesis.speak(msg);
+                vozIniciada = true;
+            }
+        }
+
+        function toggleMenu() { 
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('user-list').style.display = 'block';
+        }
+
+        function showRegister() {
+            document.getElementById('user-list').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
         }
     </script>
 </body>
