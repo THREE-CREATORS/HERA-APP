@@ -35,6 +35,13 @@
             max-width: 400px; 
             color: var(--text-black); 
             background: var(--accent-yellow); 
+            transition: transform 0.1s, box-shadow 0.1s; /* Efecto suave */
+        }
+
+        /* Efecto de hundimiento */
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 5px 10px rgba(0,0,0,0.3);
         }
         
         .visor { 
@@ -62,31 +69,47 @@
         <button id="btn-conectar" class="btn" onclick="conectarRobot()">CONECTAR</button>
         <button class="btn" onclick="abrirVisor('traducciones')">TRADUCCIÓN DE LENGUAJES</button>
         <button class="btn" onclick="abrirVisor('piezas')">IDENTIFICACIÓN DE PIEZAS</button>
-        <button class="btn" onclick="ejecutarAccion('motores/activar')">EMPEZAR LECTURAS</button>
+        <button class="btn" onclick="activarMotores()">EMPEZAR LECTURAS</button>
         <button class="btn" onclick="showSection('home')">SALIR</button>
     </div>
 
     <div id="visor-datos" class="section">
         <h2 id="titulo-visor">Información</h2>
-        <div class="visor" id="contenido-visor">Cargando datos desde la nube...</div>
+        <div class="visor" id="contenido-visor">Cargando datos...</div>
         <button class="btn" onclick="showSection('dashboard')">VOLVER AL PANEL</button>
     </div>
 
     <script>
         const IP_ROBOT = "http://192.168.4.1";
 
-        // Función para cambiar a la interfaz de visualización
+        async function activarMotores() {
+            // Animación visual de confirmación
+            const btn = event.target;
+            btn.innerText = "INICIANDO...";
+            
+            try {
+                const response = await fetch(IP_ROBOT + '/motores/activar');
+                if(response.ok) {
+                    alert("Motores activados, iniciando rutina de lectura.");
+                    btn.innerText = "EMPEZAR LECTURAS";
+                }
+            } catch (error) {
+                alert("Error: No se pudo contactar con la placa. Verifica la conexión.");
+                btn.innerText = "EMPEZAR LECTURAS";
+            }
+        }
+
+        // --- Resto de funciones ---
         async function abrirVisor(tipo) {
             document.getElementById('titulo-visor').innerText = tipo.toUpperCase();
             document.getElementById('contenido-visor').innerText = "Consultando a la nube...";
             showSection('visor-datos');
-            
             try {
                 const response = await fetch(IP_ROBOT + '/' + tipo);
                 const data = await response.text();
                 document.getElementById('contenido-visor').innerText = data;
             } catch (error) {
-                document.getElementById('contenido-visor').innerText = "Error: No se pudo obtener la información de " + tipo;
+                document.getElementById('contenido-visor').innerText = "Error de comunicación.";
             }
         }
 
@@ -100,13 +123,7 @@
                     msg.lang = 'es-ES';
                     window.speechSynthesis.speak(msg);
                 }
-            } catch (error) { alert("Error de conexión con el robot"); }
-        }
-
-        function ejecutarAccion(ruta) {
-            fetch(IP_ROBOT + '/' + ruta)
-            .then(() => alert("Acción ejecutada correctamente"))
-            .catch(() => alert("Error al ejecutar acción"));
+            } catch (error) { alert("Error de conexión"); }
         }
 
         function showSection(id) {
