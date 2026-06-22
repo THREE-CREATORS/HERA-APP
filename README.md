@@ -10,7 +10,7 @@
         .section { padding: 40px 20px; display: none; text-align: center; width: 100%; flex-direction: column; align-items: center; }
         
         #btn-menu-usuarios { position: absolute; top: 20px; right: 20px; background: #00274d; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; border: 1px solid var(--accent-yellow); font-weight: bold; }
-        #lista-desplegable { display: none; position: absolute; top: 60px; right: 20px; background: white; color: black; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: left; z-index: 100; }
+        #lista-desplegable { display: none; position: absolute; top: 60px; right: 20px; background: white; color: black; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: left; z-index: 100; min-width: 150px; }
         
         .btn { padding: 25px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; margin: 10px; width: 90%; max-width: 400px; font-size: 1.2rem; background: var(--accent-yellow); color: var(--text-black); }
         .btn-small { padding: 15px 30px; width: auto; }
@@ -37,16 +37,17 @@
     </div>
 
     <div id="presentacion" class="section">
-        <h1>Bienvenido</h1>
-        <p style="font-size: 1.5rem;">Soy HERA, tu sistema de asistencia inteligente. ¿Deseas acceder al panel?</p>
+        <h1>HOLA, SOY HERA.</h1>
+        <p style="font-size: 1.5rem;">¿ESTAS LISTO PARA DESCUBRIR NUESTRO PASADO?</p>
         <div class="row">
-            <button class="btn btn-small" onclick="showSection('dashboard'); hablar('Accediendo al panel de control.')">SÍ</button>
+            <button class="btn btn-small" onclick="showSection('dashboard'); hablar('Accediendo al panel.')">SÍ</button>
             <button class="btn btn-small btn-danger" onclick="volver()">NO</button>
         </div>
     </div>
 
     <div id="dashboard" class="section">
         <h1>Panel de Control</h1>
+        <button id="btn-conectar" class="btn btn-small" onclick="conectarNube()">CONECTAR A NUBE</button>
         <div class="row">
             <button class="btn" onclick="abrirVisor('traducciones')">TRADUCCIÓN</button>
             <button class="btn" onclick="abrirVisor('piezas')">PIEZAS</button>
@@ -77,7 +78,15 @@
         }
 
         function actualizarLista() {
-            document.getElementById('lista-nombres').innerHTML = baseDeDatos.map(u => `<p>👤 ${u}</p>`).join('');
+            const listaDiv = document.getElementById('lista-nombres');
+            listaDiv.innerHTML = baseDeDatos.map((u, index) => 
+                `<p>👤 ${u} <span style="cursor:pointer; color:red;" onclick="eliminarUsuario(${index})">❌</span></p>`
+            ).join('');
+        }
+
+        function eliminarUsuario(index) {
+            baseDeDatos.splice(index, 1);
+            actualizarLista();
         }
 
         function verificarAcceso() {
@@ -109,6 +118,8 @@
                 try { await fetch(IP_ROBOT + '/tarea/detener'); } catch(e) {}
             }
         }
+
+        async function conectarNube() { try { await fetch(IP_NUBE + '/status'); hablar("Conectado a nube."); } catch(e) { alert("Error nube"); } }
 
         async function abrirVisor(tipo) {
             showSection('visor-datos');
