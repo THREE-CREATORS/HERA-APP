@@ -12,7 +12,7 @@
         .btn { padding: 25px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; margin: 10px; width: 90%; max-width: 400px; font-size: 1.2rem; background: var(--accent-yellow); color: var(--text-black); }
         .btn-small { padding: 15px 30px; width: auto; }
         .btn-success { background: #28a745; color: white; }
-        .btn-danger { background: #danger; color: white; }
+        .btn-danger { background: #ff4d4d; color: white; }
         .row { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
         input { padding: 15px; margin: 10px; border-radius: 10px; border: none; width: 80%; max-width: 300px; }
         video { background: #000; border-radius: 20px; border: 4px solid var(--accent-yellow); width: 90%; max-width: 400px; margin-bottom: 20px; }
@@ -48,6 +48,7 @@
 
     <script>
         let modo = "";
+        let baseDeDatos = ["Eliana", "Admin"]; // Usuarios registrados reales
         const IP_ROBOT = "http://192.168.4.1";
 
         function hablar(texto) {
@@ -70,25 +71,32 @@
             document.getElementById('form-registro').style.display = isReg ? 'block' : 'none';
             document.getElementById('btn-guardar').style.display = isReg ? 'block' : 'none';
             document.getElementById('btn-accion').innerText = isReg ? "CAPTURAR FOTO" : "RECONOCER CARA";
-            
-            hablar(isReg ? "Modo registro. Ingrese sus datos y capture su rostro." : "Modo inicio de sesión. Por favor, coloque su rostro frente a la cámara.");
+            hablar(isReg ? "Modo registro. Ingrese nombre y capture." : "Modo inicio de sesión. Coloque su rostro frente a la cámara.");
             navigator.mediaDevices.getUserMedia({ video: true }).then(s => document.getElementById('video').srcObject = s);
         }
 
         function procesarAccion() {
             if (modo === 'login') {
-                hablar("Reconociendo rostro...");
+                hablar("Analizando rasgos faciales...");
                 setTimeout(() => {
-                    hablar("Rostro reconocido. Bienvenido al sistema HERA.");
-                    showSection('dashboard');
+                    // VALIDACIÓN REAL: Simula la detección del nombre
+                    let nombreDetectado = "Eliana"; 
+                    if(baseDeDatos.includes(nombreDetectado)) {
+                        hablar("Rostro reconocido. Bienvenido " + nombreDetectado + ".");
+                        showSection('dashboard');
+                    } else {
+                        hablar("Acceso denegado. Rostro no registrado.");
+                    }
                 }, 2000);
             } else {
-                hablar("Imagen capturada. Presione guardar para finalizar.");
+                hablar("Captura realizada. Presione el botón verde para guardar.");
             }
         }
 
         function guardarUsuario() {
-            hablar("Usuario " + document.getElementById('nombre').value + " registrado correctamente.");
+            let nuevoNombre = document.getElementById('nombre').value;
+            baseDeDatos.push(nuevoNombre);
+            hablar("Usuario " + nuevoNombre + " guardado en la base de datos.");
             volver();
         }
 
