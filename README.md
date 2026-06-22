@@ -13,6 +13,7 @@
         .btn-small { padding: 15px 30px; width: auto; }
         .btn-success { background: #28a745; color: white; }
         .btn-danger { background: #ff4d4d; color: white; }
+        .btn-stop { background: var(--danger) !important; color: white !important; }
         .row { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
         input { padding: 15px; margin: 10px; border-radius: 10px; border: none; width: 80%; max-width: 300px; }
         video { background: #000; border-radius: 20px; border: 4px solid var(--accent-yellow); width: 90%; max-width: 400px; margin-bottom: 20px; }
@@ -24,6 +25,7 @@
         <h1 style="font-size: 4rem;">HERA</h1>
         <button class="btn" onclick="iniciarProceso('login')">INICIAR SESIÓN</button>
         <button class="btn btn-small" onclick="iniciarProceso('register')">REGÍSTRATE</button>
+        <button class="btn btn-small" onclick="accesoInvitado()">INGRESAR COMO INVITADO</button>
     </div>
 
     <div id="camera-view" class="section">
@@ -42,13 +44,14 @@
 
     <div id="dashboard" class="section">
         <h1>Panel de Control</h1>
-        <button id="btn-motores" class="btn" onclick="activarMotores()">EMPEZAR LECTURAS</button>
+        <button id="btn-tarea" class="btn" onclick="toggleTarea()">INICIAR TAREA</button>
         <button class="btn btn-danger" onclick="volver()">SALIR</button>
     </div>
 
     <script>
         let modo = "";
-        let baseDeDatos = ["Eliana", "Admin"]; // Usuarios registrados reales
+        let tareaActiva = false;
+        let baseDeDatos = ["Eliana", "Admin"]; 
         const IP_ROBOT = "http://192.168.4.1";
 
         function hablar(texto) {
@@ -79,7 +82,6 @@
             if (modo === 'login') {
                 hablar("Analizando rasgos faciales...");
                 setTimeout(() => {
-                    // VALIDACIÓN REAL: Simula la detección del nombre
                     let nombreDetectado = "Eliana"; 
                     if(baseDeDatos.includes(nombreDetectado)) {
                         hablar("Rostro reconocido. Bienvenido " + nombreDetectado + ".");
@@ -93,16 +95,33 @@
             }
         }
 
+        function accesoInvitado() {
+            hablar("Acceso como invitado concedido.");
+            showSection('dashboard');
+        }
+
         function guardarUsuario() {
             let nuevoNombre = document.getElementById('nombre').value;
-            baseDeDatos.push(nuevoNombre);
-            hablar("Usuario " + nuevoNombre + " guardado en la base de datos.");
+            if(nuevoNombre) { baseDeDatos.push(nuevoNombre); }
+            hablar("Usuario guardado correctamente.");
             volver();
         }
 
-        async function activarMotores() {
-            hablar("Iniciando rutina de luces y motores.");
-            try { await fetch(IP_ROBOT + '/motores/activar'); } catch(e) {}
+        async function toggleTarea() {
+            const btn = document.getElementById('btn-tarea');
+            tareaActiva = !tareaActiva;
+            
+            if (tareaActiva) {
+                btn.innerText = "TERMINAR TAREA";
+                btn.classList.add('btn-stop');
+                hablar("Iniciando motores, luces y zumbador.");
+                try { await fetch(IP_ROBOT + '/tarea/iniciar'); } catch(e) {}
+            } else {
+                btn.innerText = "INICIAR TAREA";
+                btn.classList.remove('btn-stop');
+                hablar("Tarea finalizada. Todo apagado.");
+                try { await fetch(IP_ROBOT + '/tarea/detener'); } catch(e) {}
+            }
         }
 
         function volver() { showSection('splash'); }
