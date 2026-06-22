@@ -12,7 +12,7 @@
         .btn { padding: 25px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; margin: 10px; width: 90%; max-width: 400px; font-size: 1.2rem; background: var(--accent-yellow); color: var(--text-black); }
         .btn-small { padding: 15px 30px; width: auto; }
         .btn-success { background: #28a745; color: white; }
-        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger { background: #danger; color: white; }
         .row { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
         input { padding: 15px; margin: 10px; border-radius: 10px; border: none; width: 80%; max-width: 300px; }
         video { background: #000; border-radius: 20px; border: 4px solid var(--accent-yellow); width: 90%; max-width: 400px; margin-bottom: 20px; }
@@ -34,7 +34,7 @@
             <input type="text" id="apellido" placeholder="Apellido">
         </div>
         <div class="row">
-            <button class="btn btn-small" id="btn-capturar" onclick="capturarYProcesar()">CAPTURAR Y PROCESAR</button>
+            <button class="btn btn-small" id="btn-accion" onclick="procesarAccion()">PROCESAR</button>
             <button class="btn btn-small btn-success" id="btn-guardar" onclick="guardarUsuario()" style="display:none;">GUARDAR USUARIO</button>
             <button class="btn btn-small btn-danger" onclick="volver()">VOLVER</button>
         </div>
@@ -65,18 +65,26 @@
         function iniciarProceso(m) {
             modo = m;
             showSection('camera-view');
-            hablar(modo === 'login' ? "Modo inicio de sesión. Por favor, mira a la cámara." : "Modo registro. Introduce tus datos y captura.");
-            document.getElementById('form-registro').style.display = (modo === 'register') ? 'block' : 'none';
+            const isReg = (modo === 'register');
+            document.getElementById('cam-title').innerText = isReg ? "Registro de Usuario" : "Inicio de Sesión";
+            document.getElementById('form-registro').style.display = isReg ? 'block' : 'none';
+            document.getElementById('btn-guardar').style.display = isReg ? 'block' : 'none';
+            document.getElementById('btn-accion').innerText = isReg ? "CAPTURAR FOTO" : "RECONOCER CARA";
+            
+            hablar(isReg ? "Modo registro. Ingrese sus datos y capture su rostro." : "Modo inicio de sesión. Por favor, coloque su rostro frente a la cámara.");
             navigator.mediaDevices.getUserMedia({ video: true }).then(s => document.getElementById('video').srcObject = s);
         }
 
-        async function capturarYProcesar() {
-            hablar("Procesando imagen...");
-            // Aquí simulamos la captura y paso al Dashboard tras éxito
-            setTimeout(() => {
-                hablar("Rostro reconocido. Acceso concedido.");
-                showSection('dashboard');
-            }, 2000);
+        function procesarAccion() {
+            if (modo === 'login') {
+                hablar("Reconociendo rostro...");
+                setTimeout(() => {
+                    hablar("Rostro reconocido. Bienvenido al sistema HERA.");
+                    showSection('dashboard');
+                }, 2000);
+            } else {
+                hablar("Imagen capturada. Presione guardar para finalizar.");
+            }
         }
 
         function guardarUsuario() {
@@ -86,11 +94,7 @@
 
         async function activarMotores() {
             hablar("Iniciando rutina de luces y motores.");
-            try { 
-                await fetch(IP_ROBOT + '/motores/activar'); 
-            } catch(e) { 
-                console.log("Error de conexión"); 
-            }
+            try { await fetch(IP_ROBOT + '/motores/activar'); } catch(e) {}
         }
 
         function volver() { showSection('splash'); }
