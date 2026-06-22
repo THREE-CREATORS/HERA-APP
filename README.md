@@ -2,142 +2,109 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HERA Pro System</title>
     <style>
-        :root { 
-            --nav-blue: #001f3f; 
-            --accent-yellow: #ffcc00; 
-            --text-black: #000000; 
-        }
-        body { 
-            margin: 0; 
-            background: var(--nav-blue); 
-            color: white; 
-            font-family: 'Segoe UI', sans-serif; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
+        :root { --nav-blue: #001f3f; --accent-yellow: #ffcc00; --text-black: #000000; --danger: #ff4d4d; }
+        body { margin: 0; background: var(--nav-blue); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; align-items: center; }
         
         .section { padding: 20px; display: none; text-align: center; width: 100%; }
-        #home { display: flex; flex-direction: column; justify-content: center; height: 100vh; }
         
-        .btn { 
-            padding: 20px; 
-            border-radius: 15px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold; 
-            margin: 10px 0; 
-            width: 85%; 
-            max-width: 400px; 
-            color: var(--text-black); 
-            background: var(--accent-yellow); 
-            transition: transform 0.1s, box-shadow 0.1s; /* Efecto suave */
-        }
+        /* Animación de Ojos */
+        #splash { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; cursor: pointer; }
+        .eyes { font-size: 5rem; animation: blink 2s infinite; }
+        @keyframes blink { 0%, 90%, 100% { opacity: 1; } 95% { opacity: 0; } }
 
-        /* Efecto de hundimiento */
-        .btn:active {
-            transform: scale(0.95);
-            box-shadow: inset 0 5px 10px rgba(0,0,0,0.3);
-        }
-        
-        .visor { 
-            background: #000; 
-            padding: 30px; 
-            border-radius: 15px; 
-            margin: 20px auto; 
-            width: 85%; 
-            border: 2px solid var(--accent-yellow); 
-            color: #fff; 
-            font-size: 1.2rem; 
-            min-height: 200px; 
-        }
+        .btn { padding: 20px; border-radius: 15px; border: none; cursor: pointer; font-weight: bold; margin: 10px 0; width: 85%; max-width: 400px; color: var(--text-black); background: var(--accent-yellow); transition: transform 0.1s; }
+        .btn-small { padding: 10px 20px; width: auto; font-size: 0.8rem; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn:active { transform: scale(0.95); }
+        .row { display: flex; gap: 10px; justify-content: center; width: 90%; }
+        .row .btn { width: 45%; }
+        .visor { background: #000; padding: 20px; border-radius: 15px; margin: 20px auto; width: 85%; border: 2px solid var(--accent-yellow); color: #fff; min-height: 150px; }
     </style>
 </head>
-<body onclick="iniciarVoz()">
+<body>
 
-    <div id="home" class="section" style="display:block;">
+    <div id="splash" onclick="despertarHera()" style="display:flex;">
+        <div class="eyes">O_O</div>
+        <p>Toca para despertar a HERA</p>
+    </div>
+
+    <div id="home" class="section">
         <h1>HERA</h1>
-        <button class="btn" onclick="showSection('dashboard')">EMPIEZA A DESCUBRIR CON HERA</button>
+        <button id="btn-conectar" class="btn btn-small" onclick="conectarRobot()">CONECTAR</button>
+        <button class="btn" onclick="iniciarSesion()">EMPIEZA A DESCUBRIR CON HERA</button>
     </div>
 
     <div id="dashboard" class="section">
         <h1>Panel de Control</h1>
-        <button id="btn-conectar" class="btn" onclick="conectarRobot()">CONECTAR</button>
-        <button class="btn" onclick="abrirVisor('traducciones')">TRADUCCIÓN DE LENGUAJES</button>
-        <button class="btn" onclick="abrirVisor('piezas')">IDENTIFICACIÓN DE PIEZAS</button>
-        <button class="btn" onclick="activarMotores()">EMPEZAR LECTURAS</button>
-        <button class="btn" onclick="showSection('home')">SALIR</button>
+        <div class="row">
+            <button class="btn" onclick="abrirVisor('traducciones')">TRADUCCIÓN</button>
+            <button class="btn" onclick="abrirVisor('piezas')">PIEZAS</button>
+        </div>
+        <button class="btn" style="width:85%" onclick="activarMotores()">EMPEZAR LECTURAS</button>
+        <button class="btn btn-danger" style="width:85%" onclick="showSection('home')">SALIR</button>
     </div>
 
     <div id="visor-datos" class="section">
         <h2 id="titulo-visor">Información</h2>
-        <div class="visor" id="contenido-visor">Cargando datos...</div>
-        <button class="btn" onclick="showSection('dashboard')">VOLVER AL PANEL</button>
+        <div class="visor" id="contenido-visor">Cargando...</div>
+        <button class="btn" onclick="showSection('dashboard'); hablar('Has vuelto al panel principal. ¿Qué deseas hacer ahora?')">VOLVER</button>
     </div>
 
     <script>
         const IP_ROBOT = "http://192.168.4.1";
 
-        async function activarMotores() {
-            // Animación visual de confirmación
-            const btn = event.target;
-            btn.innerText = "INICIANDO...";
-            
-            try {
-                const response = await fetch(IP_ROBOT + '/motores/activar');
-                if(response.ok) {
-                    alert("Motores activados, iniciando rutina de lectura.");
-                    btn.innerText = "EMPEZAR LECTURAS";
-                }
-            } catch (error) {
-                alert("Error: No se pudo contactar con la placa. Verifica la conexión.");
-                btn.innerText = "EMPEZAR LECTURAS";
-            }
+        function hablar(texto) {
+            const msg = new SpeechSynthesisUtterance(texto);
+            msg.lang = 'es-ES';
+            window.speechSynthesis.speak(msg);
         }
 
-        // --- Resto de funciones ---
+        // DESPERTAR
+        function despertarHera() {
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('home').style.display = 'flex';
+            hablar("Estoy lista para la acción.");
+        }
+
+        // GUIAS DE VOZ POR INTERFAZ
+        function iniciarSesion() {
+            hablar("Bienvenido a Hera. Presiona los botones del panel para comenzar a descubrir nuestro pasado.");
+            showSection('dashboard');
+        }
+
         async function abrirVisor(tipo) {
+            hablar("Visualizando información de " + tipo + ". Presiona volver para regresar al panel.");
             document.getElementById('titulo-visor').innerText = tipo.toUpperCase();
-            document.getElementById('contenido-visor').innerText = "Consultando a la nube...";
             showSection('visor-datos');
             try {
                 const response = await fetch(IP_ROBOT + '/' + tipo);
-                const data = await response.text();
-                document.getElementById('contenido-visor').innerText = data;
-            } catch (error) {
-                document.getElementById('contenido-visor').innerText = "Error de comunicación.";
-            }
+                document.getElementById('contenido-visor').innerText = await response.text();
+            } catch (e) { document.getElementById('contenido-visor').innerText = "Error de conexión."; }
         }
 
         async function conectarRobot() {
+            hablar("Intentando conectar con el sistema.");
             const btn = document.getElementById('btn-conectar');
             try {
                 const response = await fetch(IP_ROBOT + '/status');
                 if(response.ok) {
                     btn.innerText = "CONECTADO";
-                    const msg = new SpeechSynthesisUtterance("Conectado exitosamente.");
-                    msg.lang = 'es-ES';
-                    window.speechSynthesis.speak(msg);
+                    hablar("Conexión establecida con éxito.");
                 }
-            } catch (error) { alert("Error de conexión"); }
+            } catch (error) { hablar("No se pudo conectar. Verifica el robot."); }
+        }
+
+        async function activarMotores() {
+            hablar("Iniciando motores. Por favor, mantente atento a la rutina de lectura.");
+            try { await fetch(IP_ROBOT + '/motores/activar'); } 
+            catch (e) { alert("Error al activar motores."); }
         }
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-        }
-
-        function iniciarVoz() {
-            if(!localStorage.getItem('bienvenida_hera')) {
-                const msg = new SpeechSynthesisUtterance("Bienvenido a Hera, aquí podrás descubrir nuestro pasado.");
-                msg.lang = 'es-ES';
-                window.speechSynthesis.speak(msg);
-                localStorage.setItem('bienvenida_hera', 'true');
-            }
         }
     </script>
 </body>
