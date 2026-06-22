@@ -123,4 +123,16 @@
             }
         }
 
-        async function conectarNube() { try { await fetch(IP_NUBE + '/status'); hablar("Conectado a nube."); } catch
+        async function conectarNube() { try { await fetch(IP_NUBE + '/status'); hablar("Conectado a nube."); } catch(e) { alert("Error nube"); } }
+
+        async function abrirVisor(tipo) {
+            showSection('visor-datos');
+            document.getElementById('titulo-visor').innerText = tipo.toUpperCase();
+            try { const res = await fetch(IP_NUBE + '/' + tipo); document.getElementById('contenido-visor').innerText = await res.text(); } 
+            catch(e) { document.getElementById('contenido-visor').innerText = "Error de conexión."; }
+        }
+
+        function volver() { showSection('splash'); }
+    </script>
+</body>
+</html>
