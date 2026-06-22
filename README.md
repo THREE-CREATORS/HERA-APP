@@ -9,13 +9,14 @@
         body { margin: 0; background: var(--nav-blue); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .section { padding: 40px 20px; display: none; text-align: center; width: 100%; flex-direction: column; align-items: center; }
         
-        /* Contenedor de lista reutilizable */
-        .lista-usuarios-box { background: #00274d; padding: 15px; border-radius: 15px; width: 90%; max-width: 400px; margin: 20px 0; border: 1px solid var(--accent-yellow); }
+        /* Botón pequeño y menú desplegable */
+        .btn-mini { padding: 8px 15px; font-size: 0.9rem; background: #00274d; color: white; border: 1px solid var(--accent-yellow); border-radius: 8px; cursor: pointer; margin: 10px; }
+        .lista-desplegable { display: none; background: white; color: black; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: left; margin-top: 10px; width: 200px; }
         
         .btn { padding: 25px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; margin: 10px; width: 90%; max-width: 400px; font-size: 1.2rem; background: var(--accent-yellow); color: var(--text-black); }
         .btn-small { padding: 15px 30px; width: auto; }
         .btn-danger { background: #ff4d4d; color: white; }
-        .btn-stop { background: var(--danger) !important; color: white !important; }
+        .btn-stop { background: #ff4d4d !important; color: white !important; }
         .row { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
         input { padding: 15px; margin: 10px; border-radius: 10px; border: none; width: 80%; max-width: 300px; }
         .visor { background: #000; padding: 30px; border-radius: 20px; margin: 20px auto; width: 80%; border: 3px solid var(--accent-yellow); color: #fff; font-size: 1.2rem; min-height: 150px; text-align: left; }
@@ -34,10 +35,8 @@
         <h1>HOLA, SOY HERA.</h1>
         <p style="font-size: 1.5rem;">¿ESTAS LISTO PARA DESCUBRIR NUESTRO PASADO?</p>
         
-        <div class="lista-usuarios-box">
-            <h3>Usuarios Registrados</h3>
-            <div id="lista-nombres-p2"></div>
-        </div>
+        <button class="btn-mini" onclick="toggleMenu('menu-p2')">USUARIOS 👤</button>
+        <div id="menu-p2" class="lista-desplegable"><div id="lista-nombres-p2"></div></div>
 
         <div class="row">
             <button class="btn btn-small" onclick="showSection('dashboard'); hablar('Accediendo al panel.')">SÍ</button>
@@ -48,10 +47,8 @@
     <div id="dashboard" class="section">
         <h1>Panel de Control</h1>
         
-        <div class="lista-usuarios-box">
-            <h3>Usuarios Registrados</h3>
-            <div id="lista-nombres-p3"></div>
-        </div>
+        <button class="btn-mini" onclick="toggleMenu('menu-p3')">USUARIOS 👤</button>
+        <div id="menu-p3" class="lista-desplegable"><div id="lista-nombres-p3"></div></div>
 
         <button id="btn-conectar" class="btn btn-small" onclick="conectarNube()">CONECTAR A NUBE</button>
         <div class="row">
@@ -77,9 +74,14 @@
         function hablar(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-VE'; window.speechSynthesis.speak(m); }
         function showSection(id) { document.querySelectorAll('.section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'flex'; actualizarLista(); }
 
+        function toggleMenu(id) {
+            const menu = document.getElementById(id);
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
         function actualizarLista() {
             const html = baseDeDatos.map((u, index) => 
-                `<p>👤 ${u} <span style="cursor:pointer; color:red; margin-left:10px;" onclick="eliminarUsuario(${index})">❌</span></p>`
+                `<p style="display:flex; justify-content:space-between;">${u} <span style="cursor:pointer; color:red;" onclick="eliminarUsuario(${index})">❌</span></p>`
             ).join('');
             document.getElementById('lista-nombres-p2').innerHTML = html;
             document.getElementById('lista-nombres-p3').innerHTML = html;
@@ -121,16 +123,4 @@
             }
         }
 
-        async function conectarNube() { try { await fetch(IP_NUBE + '/status'); hablar("Conectado a nube."); } catch(e) { alert("Error nube"); } }
-
-        async function abrirVisor(tipo) {
-            showSection('visor-datos');
-            document.getElementById('titulo-visor').innerText = tipo.toUpperCase();
-            try { const res = await fetch(IP_NUBE + '/' + tipo); document.getElementById('contenido-visor').innerText = await res.text(); } 
-            catch(e) { document.getElementById('contenido-visor').innerText = "Error de conexión."; }
-        }
-
-        function volver() { showSection('splash'); }
-    </script>
-</body>
-</html>
+        async function conectarNube() { try { await fetch(IP_NUBE + '/status'); hablar("Conectado a nube."); } catch
