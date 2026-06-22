@@ -11,13 +11,11 @@
         #splash { display: flex; }
         .btn { padding: 25px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; margin: 10px; width: 90%; max-width: 400px; font-size: 1.2rem; background: var(--accent-yellow); color: var(--text-black); }
         .btn-small { padding: 15px 30px; width: auto; }
-        .btn-success { background: #28a745; color: white; }
         .btn-danger { background: #ff4d4d; color: white; }
         .btn-stop { background: var(--danger) !important; color: white !important; }
         .row { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
         input { padding: 15px; margin: 10px; border-radius: 10px; border: none; width: 80%; max-width: 300px; }
-        video, #foto-capturada { background: #000; border-radius: 20px; border: 4px solid var(--accent-yellow); width: 90%; max-width: 400px; margin-bottom: 20px; display: block; }
-        #foto-capturada { display: none; }
+        .lista-usuarios { background: #00274d; padding: 15px; border-radius: 15px; width: 90%; max-width: 400px; margin-top: 20px; }
         .visor { background: #000; padding: 30px; border-radius: 20px; margin: 20px auto; width: 80%; border: 3px solid var(--accent-yellow); color: #fff; font-size: 1.2rem; min-height: 150px; text-align: left; }
     </style>
 </head>
@@ -25,28 +23,17 @@
 
     <div id="splash" class="section" style="display: flex;">
         <h1 style="font-size: 4rem;">HERA</h1>
-        <button class="btn" onclick="iniciarProceso('login')">INICIAR SESIÓN</button>
-        <button class="btn btn-small" onclick="iniciarProceso('register')">REGÍSTRATE</button>
-        <button class="btn btn-small" onclick="accesoInvitado()">INGRESAR COMO INVITADO</button>
-    </div>
-
-    <div id="camera-view" class="section">
-        <h2 id="cam-title">Cámara</h2>
-        <video id="video" autoplay playsinline></video>
-        <img id="foto-capturada" alt="Foto capturada">
-        <div id="form-registro" style="display:none;">
-            <input type="text" id="nombre" placeholder="Nombre">
-        </div>
-        <div class="row">
-            <button class="btn btn-small" id="btn-accion" onclick="procesarAccion()">PROCESAR</button>
-            <button class="btn btn-small btn-success" id="btn-guardar" onclick="guardarUsuario()" style="display:none;">GUARDAR</button>
-            <button class="btn btn-small btn-danger" onclick="volver()">VOLVER</button>
-        </div>
+        <input type="text" id="login-nombre" placeholder="Ingrese nombre de usuario">
+        <button class="btn" onclick="verificarAcceso()">INGRESAR</button>
+        <button class="btn btn-small" onclick="registrarUsuario()">REGISTRAR NUEVO USUARIO</button>
     </div>
 
     <div id="dashboard" class="section">
         <h1>Panel de Control</h1>
-        <button id="btn-conectar" class="btn btn-small" onclick="conectarNube()">CONECTAR A NUBE</button>
+        <div class="lista-usuarios">
+            <h3>Usuarios Registrados</h3>
+            <div id="lista-nombres"></div>
+        </div>
         <div class="row">
             <button class="btn" onclick="abrirVisor('traducciones')">TRADUCCIÓN</button>
             <button class="btn" onclick="abrirVisor('piezas')">PIEZAS</button>
@@ -62,53 +49,39 @@
     </div>
 
     <script>
-        let modo = "", tareaActiva = false;
-        let baseDeDatos = ["Eliana", "Admin"];
+        let tareaActiva = false;
+        let baseDeDatos = ["Admin"];
         const IP_ROBOT = "http://192.168.4.1";
         const IP_NUBE = "http://TU_IP_DE_LA_NUBE_AQUI"; 
-        const video = document.getElementById('video');
-        const foto = document.getElementById('foto-capturada');
-        const canvas = document.createElement('canvas');
 
         function hablar(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-VE'; window.speechSynthesis.speak(m); }
-        
         function showSection(id) { document.querySelectorAll('.section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'flex'; }
 
-        function iniciarProceso(m) {
-            modo = m; showSection('camera-view');
-            foto.style.display = 'none'; video.style.display = 'block';
-            const isReg = (modo === 'register');
-            document.getElementById('form-registro').style.display = isReg ? 'block' : 'none';
-            document.getElementById('btn-guardar').style.display = 'none';
-            document.getElementById('btn-accion').innerText = isReg ? "CAPTURAR" : "RECONOCER";
-            navigator.mediaDevices.getUserMedia({ video: true }).then(s => video.srcObject = s);
+        function actualizarLista() {
+            const listaDiv = document.getElementById('lista-nombres');
+            listaDiv.innerHTML = baseDeDatos.map(u => `<p>👤 ${u}</p>`).join('');
         }
 
-        function procesarAccion() {
-            if (modo === 'register') {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                foto.src = canvas.toDataURL('image/png');
-                video.style.display = 'none';
-                foto.style.display = 'block';
-                document.getElementById('btn-guardar').style.display = 'block';
-                hablar("Foto capturada. Presione guardar.");
+        function verificarAcceso() {
+            let nombre = document.getElementById('login-nombre').value;
+            if(baseDeDatos.includes(nombre)) {
+                hablar("Bienvenido al sistema, " + nombre);
+                actualizarLista();
+                showSection('dashboard');
             } else {
-                hablar("Analizando...");
-                setTimeout(() => {
-                    if(baseDeDatos.includes("Eliana")) { hablar("Bienvenida, Eliana."); showSection('dashboard'); }
-                    else { hablar("Acceso denegado."); }
-                }, 2000);
+                hablar("Usuario no encontrado.");
             }
         }
 
-        function accesoInvitado() { hablar("Acceso invitado."); showSection('dashboard'); }
-
-        function guardarUsuario() { 
-            baseDeDatos.push(document.getElementById('nombre').value); 
-            hablar("Usuario registrado."); 
-            volver(); 
+        function registrarUsuario() {
+            let nombre = document.getElementById('login-nombre').value;
+            if(nombre && !baseDeDatos.includes(nombre)) {
+                baseDeDatos.push(nombre);
+                hablar("Usuario registrado correctamente.");
+                actualizarLista();
+            } else {
+                hablar("Nombre inválido o ya existente.");
+            }
         }
 
         async function toggleTarea() {
@@ -116,22 +89,20 @@
             tareaActiva = !tareaActiva;
             if (tareaActiva) {
                 btn.innerText = "TERMINAR TAREA"; btn.classList.add('btn-stop');
-                hablar("Iniciando motores y sistemas.");
-                await fetch(IP_ROBOT + '/tarea/iniciar');
+                hablar("Iniciando motores.");
+                try { await fetch(IP_ROBOT + '/tarea/iniciar'); } catch(e) {}
             } else {
                 btn.innerText = "INICIAR TAREA"; btn.classList.remove('btn-stop');
                 hablar("Tarea finalizada.");
-                await fetch(IP_ROBOT + '/tarea/detener');
+                try { await fetch(IP_ROBOT + '/tarea/detener'); } catch(e) {}
             }
         }
-
-        async function conectarNube() { try { await fetch(IP_NUBE + '/status'); hablar("Conectado a nube."); } catch(e) { alert("Error nube"); } }
 
         async function abrirVisor(tipo) {
             showSection('visor-datos');
             document.getElementById('titulo-visor').innerText = tipo.toUpperCase();
             try { const res = await fetch(IP_NUBE + '/' + tipo); document.getElementById('contenido-visor').innerText = await res.text(); } 
-            catch(e) { document.getElementById('contenido-visor').innerText = "Error de conexión."; }
+            catch(e) { document.getElementById('contenido-visor').innerText = "Error de conexión con la nube."; }
         }
 
         function volver() { showSection('splash'); }
