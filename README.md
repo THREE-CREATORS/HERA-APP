@@ -9,8 +9,8 @@
         body { margin: 0; background: var(--nav-blue); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .section { padding: 40px 20px; display: none; text-align: center; width: 100%; flex-direction: column; align-items: center; }
         
-        #btn-menu-usuarios { position: absolute; top: 20px; right: 20px; background: #00274d; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; border: 1px solid var(--accent-yellow); font-weight: bold; }
-        #lista-desplegable { display: none; position: absolute; top: 60px; right: 20px; background: white; color: black; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: left; z-index: 100; min-width: 150px; }
+        /* Contenedor de lista reutilizable */
+        .lista-usuarios-box { background: #00274d; padding: 15px; border-radius: 15px; width: 90%; max-width: 400px; margin: 20px 0; border: 1px solid var(--accent-yellow); }
         
         .btn { padding: 25px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; margin: 10px; width: 90%; max-width: 400px; font-size: 1.2rem; background: var(--accent-yellow); color: var(--text-black); }
         .btn-small { padding: 15px 30px; width: auto; }
@@ -23,12 +23,6 @@
 </head>
 <body>
 
-    <button id="btn-menu-usuarios" onclick="toggleMenu()">USUARIOS</button>
-    <div id="lista-desplegable">
-        <h3>Registrados</h3>
-        <div id="lista-nombres"></div>
-    </div>
-
     <div id="splash" class="section" style="display: flex;">
         <h1 style="font-size: 4rem;">HERA</h1>
         <input type="text" id="login-nombre" placeholder="Ingrese nombre de usuario">
@@ -39,6 +33,12 @@
     <div id="presentacion" class="section">
         <h1>HOLA, SOY HERA.</h1>
         <p style="font-size: 1.5rem;">¿ESTAS LISTO PARA DESCUBRIR NUESTRO PASADO?</p>
+        
+        <div class="lista-usuarios-box">
+            <h3>Usuarios Registrados</h3>
+            <div id="lista-nombres-p2"></div>
+        </div>
+
         <div class="row">
             <button class="btn btn-small" onclick="showSection('dashboard'); hablar('Accediendo al panel.')">SÍ</button>
             <button class="btn btn-small btn-danger" onclick="volver()">NO</button>
@@ -47,6 +47,12 @@
 
     <div id="dashboard" class="section">
         <h1>Panel de Control</h1>
+        
+        <div class="lista-usuarios-box">
+            <h3>Usuarios Registrados</h3>
+            <div id="lista-nombres-p3"></div>
+        </div>
+
         <button id="btn-conectar" class="btn btn-small" onclick="conectarNube()">CONECTAR A NUBE</button>
         <div class="row">
             <button class="btn" onclick="abrirVisor('traducciones')">TRADUCCIÓN</button>
@@ -69,19 +75,14 @@
         const IP_NUBE = "http://TU_IP_DE_LA_NUBE_AQUI"; 
 
         function hablar(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-VE'; window.speechSynthesis.speak(m); }
-        function showSection(id) { document.querySelectorAll('.section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'flex'; }
-
-        function toggleMenu() {
-            const menu = document.getElementById('lista-desplegable');
-            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-            actualizarLista();
-        }
+        function showSection(id) { document.querySelectorAll('.section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'flex'; actualizarLista(); }
 
         function actualizarLista() {
-            const listaDiv = document.getElementById('lista-nombres');
-            listaDiv.innerHTML = baseDeDatos.map((u, index) => 
-                `<p>👤 ${u} <span style="cursor:pointer; color:red;" onclick="eliminarUsuario(${index})">❌</span></p>`
+            const html = baseDeDatos.map((u, index) => 
+                `<p>👤 ${u} <span style="cursor:pointer; color:red; margin-left:10px;" onclick="eliminarUsuario(${index})">❌</span></p>`
             ).join('');
+            document.getElementById('lista-nombres-p2').innerHTML = html;
+            document.getElementById('lista-nombres-p3').innerHTML = html;
         }
 
         function eliminarUsuario(index) {
@@ -102,6 +103,7 @@
             if(nombre && !baseDeDatos.includes(nombre)) {
                 baseDeDatos.push(nombre);
                 hablar("Usuario registrado.");
+                actualizarLista();
             } else { hablar("Nombre inválido o ya existente."); }
         }
 
