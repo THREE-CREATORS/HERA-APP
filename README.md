@@ -30,7 +30,7 @@
     <!-- P2: MENÚ PRINCIPAL -->
     <div id="p2-bienvenida" class="panel">
         <h2 id="titulo-bienvenida"></h2>
-        <button class="btn-gold" onclick="navegar('p3-traduccion', 'Accediendo al análisis de manuscritos.')">ANÁLISIS DE MANUSCRITOS</button>
+        <button class="btn-gold" onclick="navegar('p3-traduccion', 'Accediendo al análisis de manuscritos, investigador.')">ANÁLISIS DE MANUSCRITOS</button>
         <button class="btn-gold" onclick="navegar('p4-piezas', 'Accediendo al análisis de piezas.')">ANÁLISIS DE PIEZAS</button>
         <br>
         <button class="btn-reset" onclick="navegar('p1-registro', 'Volviendo al inicio.')">VOLVER</button>
@@ -54,6 +54,7 @@
     </div>
 
     <script>
+        // Función de voz femenina
         function hablar(texto) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
@@ -74,18 +75,28 @@
         function navegar(id, mensaje) {
             document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            hablar(mensaje);
+            if(mensaje) hablar(mensaje);
+        }
+
+        // Función centralizada para mostrar bienvenida
+        function activarBienvenida(nombre) {
+            const genero = (nombre.toLowerCase().endsWith('a') && nombre.toLowerCase() !== 'jonas') ? "Bienvenida" : "Bienvenido";
+            const textoCompleto = genero + ", " + nombre;
+            
+            document.getElementById('titulo-bienvenida').innerText = textoCompleto;
+            document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+            document.getElementById('p2-bienvenida').style.display = 'block';
+            
+            hablar(textoCompleto + ". El sistema HERA está listo para iniciar su labor científica.");
         }
 
         function intentarIngresar() {
             const input = document.getElementById('input-nombre').value.trim();
             const registrado = localStorage.getItem('usuarioHERA');
             if (input === registrado && input !== "") {
-                const genero = (registrado.toLowerCase().endsWith('a') && registrado.toLowerCase() !== 'jonas') ? "Bienvenida" : "Bienvenido";
-                document.getElementById('titulo-bienvenida').innerText = genero + ", " + registrado;
-                navegar('p2-bienvenida', "Identidad confirmada. " + genero + " de nuevo.");
+                activarBienvenida(registrado);
             } else {
-                hablar("Acceso denegado. Usuario no reconocido.");
+                hablar("Acceso denegado. Usuario no registrado o nombre incorrecto.");
             }
         }
 
@@ -93,11 +104,9 @@
             const nombre = document.getElementById('input-nombre').value.trim();
             if (nombre !== "") {
                 localStorage.setItem('usuarioHERA', nombre);
-                const genero = (nombre.toLowerCase().endsWith('a')) ? "Bienvenida" : "Bienvenido";
-                document.getElementById('titulo-bienvenida').innerText = genero + ", " + nombre;
-                navegar('p2-bienvenida', "Registro completado. " + genero + " al sistema HERA.");
+                activarBienvenida(nombre);
             } else {
-                hablar("Por favor, ingrese un nombre válido.");
+                hablar("Por favor, ingrese un nombre válido para registrarse.");
             }
         }
 
