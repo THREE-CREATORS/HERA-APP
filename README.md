@@ -19,62 +19,68 @@
     <!-- PAGINA 1: REGISTRO/INGRESO -->
     <div id="p1-registro" class="panel" style="display: block;">
         <h1>SISTEMA HERA</h1>
-        <p>Por favor, registre su usuario o ingrese si ya está registrado.</p>
-        <input type="text" id="input-nombre" placeholder="Nombre completo del investigador">
+        <p>Identificación de Investigador</p>
+        <input type="text" id="input-nombre" placeholder="Nombre completo">
         <br>
-        <button class="btn-gold" onclick="ingresarUsuario()" style="background: #a07d30;">INGRESAR</button>
-        <button class="btn-gold" onclick="registrarUsuario()">REGISTRAR USUARIO</button>
+        <button class="btn-gold" onclick="ingresarUsuario()">INGRESAR</button>
+        <button class="btn-gold" onclick="registrarUsuario()" style="background: #8b6b2d;">REGISTRAR</button>
     </div>
 
-    <!-- PAGINA 2: BIENVENIDA -->
+    <!-- PAGINA 2, 3, 4 (MANTENIDAS) -->
     <div id="p2-bienvenida" class="panel">
         <h2 id="titulo-bienvenida"></h2>
         <button class="btn-gold" onclick="showSection('p3-traduccion')">TRADUCCIÓN</button>
-        <button class="btn-gold" onclick="showSection('p4-piezas')">PIEZAS (RESULTADOS NUBE)</button>
+        <button class="btn-gold" onclick="showSection('p4-piezas')">PIEZAS</button>
     </div>
 
-    <!-- PAGINA 3: TRADUCCIÓN -->
     <div id="p3-traduccion" class="panel">
         <h2>Módulo de Traducción</h2>
         <div class="visor">Esperando entrada de datos...</div>
-        <button class="btn-gold" onclick="hablarProfesional('Procesando traducción de manuscrito seleccionado.')">TRADUCIR</button>
+        <button class="btn-gold" onclick="hablarProfesional('Procesando datos de laboratorio.')">TRADUCIR</button>
         <button class="btn-gold" onclick="showSection('p2-bienvenida')">VOLVER</button>
     </div>
 
-    <!-- PAGINA 4: RESULTADOS DE NUBE -->
     <div id="p4-piezas" class="panel">
         <h2>Resultados de Servidor (Nube)</h2>
-        <div id="visor-nube" class="visor">Cargando datos remotos...</div>
+        <div id="visor-nube" class="visor">Cargando...</div>
         <button class="btn-gold" onclick="showSection('p2-bienvenida')">VOLVER</button>
     </div>
 
     <script>
+        // Voz más natural y femenina
         function hablarProfesional(texto) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
             msg.lang = 'es-ES';
             msg.rate = 0.9;
-            msg.pitch = 1.0;
+            msg.pitch = 1.2; // Tono ligeramente más agudo/femenino
+            
             const voces = window.speechSynthesis.getVoices();
-            msg.voice = voces.find(v => v.name.includes('Google español') || v.name.includes('Microsoft Maria')) || voces[0];
+            // Prioridad: Voces "Naturales" o de sistema de alta calidad
+            msg.voice = voces.find(v => 
+                v.name.includes('Google español') || 
+                v.name.includes('Microsoft Laura') || 
+                v.name.includes('Microsoft Helena') ||
+                v.name.includes('Samantha')
+            ) || voces[0];
+            
             window.speechSynthesis.speak(msg);
         }
 
         function showSection(id) {
             document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            if(id === 'p4-piezas') cargarDatosNube();
         }
 
-        // Nueva función de Ingreso
         function ingresarUsuario() {
             const nombreGuardado = localStorage.getItem('usuarioHERA');
             if (nombreGuardado) {
                 document.getElementById('titulo-bienvenida').innerText = "Bienvenido de nuevo, " + nombreGuardado;
                 showSection('p2-bienvenida');
-                hablarProfesional("Bienvenida de nuevo, " + nombreGuardado + ". El sistema HERA está listo para continuar su labor.");
+                hablarProfesional("Identidad verificada. Bienvenida de nuevo al laboratorio, " + nombreGuardado);
             } else {
-                alert("No existe un usuario registrado en este dispositivo. Por favor, utilice el botón de Registro.");
+                alert("Acceso denegado: El usuario no está registrado en este dispositivo. Por favor, regístrese primero.");
+                hablarProfesional("Usuario no reconocido. Por favor, realice el registro primero.");
             }
         }
 
@@ -85,15 +91,9 @@
                 return;
             }
             localStorage.setItem('usuarioHERA', nombre);
-            document.getElementById('titulo-bienvenida').innerText = "Bienvenido al sistema, " + nombre;
+            document.getElementById('titulo-bienvenida').innerText = "Bienvenido, " + nombre;
             showSection('p2-bienvenida');
-            hablarProfesional("Registro exitoso. Bienvenida al sistema HERA, " + nombre + ". Es un honor asistirle en sus investigaciones.");
-        }
-
-        function cargarDatosNube() {
-            const datos = "STATUS_IP: 192.168.1.50\nSYNC_DATA: SUCCESS\nTEMP_PROC: 34C\nRES_01: ESTRUCTURA_VALIDADA\nRES_02: COMPOSICION_METALICA";
-            document.getElementById('visor-nube').innerText = datos;
-            hablarProfesional("Se han recibido los datos de la nube. La estructura ha sido validada exitosamente.");
+            hablarProfesional("Registro exitoso. Es un honor asistirle en sus investigaciones, " + nombre);
         }
 
         window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
