@@ -16,12 +16,13 @@
 </head>
 <body>
 
-    <!-- PAGINA 1: REGISTRO MANUAL -->
+    <!-- PAGINA 1: REGISTRO/INGRESO -->
     <div id="p1-registro" class="panel" style="display: block;">
         <h1>SISTEMA HERA</h1>
-        <p>Por favor, registre su usuario para acceder al sistema.</p>
+        <p>Por favor, registre su usuario o ingrese si ya está registrado.</p>
         <input type="text" id="input-nombre" placeholder="Nombre completo del investigador">
         <br>
+        <button class="btn-gold" onclick="ingresarUsuario()" style="background: #a07d30;">INGRESAR</button>
         <button class="btn-gold" onclick="registrarUsuario()">REGISTRAR USUARIO</button>
     </div>
 
@@ -48,32 +49,35 @@
     </div>
 
     <script>
-        // Configuración de Voz Profesional
         function hablarProfesional(texto) {
-            window.speechSynthesis.cancel(); // Detiene cualquier voz anterior
+            window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
             msg.lang = 'es-ES';
-            msg.rate = 0.9; // Velocidad pausada y profesional
-            msg.pitch = 1.0; // Tono neutro/femenino
-            
-            // Intenta buscar una voz de alta calidad (Google o Microsoft)
+            msg.rate = 0.9;
+            msg.pitch = 1.0;
             const voces = window.speechSynthesis.getVoices();
             msg.voice = voces.find(v => v.name.includes('Google español') || v.name.includes('Microsoft Maria')) || voces[0];
-            
             window.speechSynthesis.speak(msg);
         }
 
-        // Navegación
         function showSection(id) {
             document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            
-            if(id === 'p4-piezas') {
-                cargarDatosNube();
+            if(id === 'p4-piezas') cargarDatosNube();
+        }
+
+        // Nueva función de Ingreso
+        function ingresarUsuario() {
+            const nombreGuardado = localStorage.getItem('usuarioHERA');
+            if (nombreGuardado) {
+                document.getElementById('titulo-bienvenida').innerText = "Bienvenido de nuevo, " + nombreGuardado;
+                showSection('p2-bienvenida');
+                hablarProfesional("Bienvenida de nuevo, " + nombreGuardado + ". El sistema HERA está listo para continuar su labor.");
+            } else {
+                alert("No existe un usuario registrado en este dispositivo. Por favor, utilice el botón de Registro.");
             }
         }
 
-        // Registro Real
         function registrarUsuario() {
             const nombre = document.getElementById('input-nombre').value;
             if (nombre.trim() === "") {
@@ -86,14 +90,12 @@
             hablarProfesional("Registro exitoso. Bienvenida al sistema HERA, " + nombre + ". Es un honor asistirle en sus investigaciones.");
         }
 
-        // Carga automática en Pag 4
         function cargarDatosNube() {
             const datos = "STATUS_IP: 192.168.1.50\nSYNC_DATA: SUCCESS\nTEMP_PROC: 34C\nRES_01: ESTRUCTURA_VALIDADA\nRES_02: COMPOSICION_METALICA";
             document.getElementById('visor-nube').innerText = datos;
             hablarProfesional("Se han recibido los datos de la nube. La estructura ha sido validada exitosamente.");
         }
 
-        // Inicialización para cargar voces al abrir
         window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
     </script>
 </body>
