@@ -16,23 +16,25 @@
 </head>
 <body>
 
-    <!-- PAGINA 1: REGISTRO/INGRESO -->
+    <!-- PAGINA 1: IDENTIFICACIÓN -->
     <div id="p1-registro" class="panel" style="display: block;">
         <h1>SISTEMA HERA</h1>
         <p>Identificación de Investigador</p>
         <input type="text" id="input-nombre" placeholder="Nombre completo">
         <br>
-        <button class="btn-gold" onclick="ingresarUsuario()">INGRESAR</button>
-        <button class="btn-gold" onclick="registrarUsuario()" style="background: #8b6b2d;">REGISTRAR</button>
+        <button class="btn-gold" onclick="intentarIngresar()">INGRESAR</button>
+        <button class="btn-gold" onclick="registrarUsuario()" style="background: #8b6b2d;">REGISTRAR NUEVO</button>
     </div>
 
-    <!-- PAGINA 2, 3, 4 (MANTENIDAS) -->
+    <!-- PAGINA 2: BIENVENIDA -->
     <div id="p2-bienvenida" class="panel">
         <h2 id="titulo-bienvenida"></h2>
         <button class="btn-gold" onclick="showSection('p3-traduccion')">TRADUCCIÓN</button>
         <button class="btn-gold" onclick="showSection('p4-piezas')">PIEZAS</button>
+        <button class="btn-gold" style="background: #555;" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
+    <!-- PAGINAS 3 Y 4 -->
     <div id="p3-traduccion" class="panel">
         <h2>Módulo de Traducción</h2>
         <div class="visor">Esperando entrada de datos...</div>
@@ -41,28 +43,23 @@
     </div>
 
     <div id="p4-piezas" class="panel">
-        <h2>Resultados de Servidor (Nube)</h2>
+        <h2>Resultados de Servidor</h2>
         <div id="visor-nube" class="visor">Cargando...</div>
         <button class="btn-gold" onclick="showSection('p2-bienvenida')">VOLVER</button>
     </div>
 
     <script>
-        // Voz más natural y femenina
+        // Función de voz femenina natural
         function hablarProfesional(texto) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
             msg.lang = 'es-ES';
             msg.rate = 0.9;
-            msg.pitch = 1.2; // Tono ligeramente más agudo/femenino
+            msg.pitch = 1.2; // Tono femenino
             
             const voces = window.speechSynthesis.getVoices();
-            // Prioridad: Voces "Naturales" o de sistema de alta calidad
-            msg.voice = voces.find(v => 
-                v.name.includes('Google español') || 
-                v.name.includes('Microsoft Laura') || 
-                v.name.includes('Microsoft Helena') ||
-                v.name.includes('Samantha')
-            ) || voces[0];
+            // Selección forzada de voces femeninas de alta calidad
+            msg.voice = voces.find(v => v.name.includes('Google español') || v.name.includes('Microsoft Laura') || v.name.includes('Microsoft Helena')) || voces[0];
             
             window.speechSynthesis.speak(msg);
         }
@@ -72,28 +69,31 @@
             document.getElementById(id).style.display = 'block';
         }
 
-        function ingresarUsuario() {
-            const nombreGuardado = localStorage.getItem('usuarioHERA');
-            if (nombreGuardado) {
-                document.getElementById('titulo-bienvenida').innerText = "Bienvenido de nuevo, " + nombreGuardado;
+        // Corrección: Solo permite ingresar si el nombre coincide con el registrado
+        function intentarIngresar() {
+            const input = document.getElementById('input-nombre').value.trim();
+            const registrado = localStorage.getItem('usuarioHERA');
+
+            if (input !== "" && input === registrado) {
+                document.getElementById('titulo-bienvenida').innerText = "Bienvenido de nuevo, " + registrado;
                 showSection('p2-bienvenida');
-                hablarProfesional("Identidad verificada. Bienvenida de nuevo al laboratorio, " + nombreGuardado);
+                hablarProfesional("Identidad verificada. Bienvenida de nuevo, " + registrado);
             } else {
-                alert("Acceso denegado: El usuario no está registrado en este dispositivo. Por favor, regístrese primero.");
-                hablarProfesional("Usuario no reconocido. Por favor, realice el registro primero.");
+                alert("Acceso denegado: El nombre no coincide con ningún registro o no ha sido ingresado.");
+                hablarProfesional("Acceso denegado. Usuario no registrado.");
             }
         }
 
         function registrarUsuario() {
-            const nombre = document.getElementById('input-nombre').value;
-            if (nombre.trim() === "") {
-                alert("Debe ingresar un nombre para registrarse.");
+            const nombre = document.getElementById('input-nombre').value.trim();
+            if (nombre === "") {
+                alert("Debe escribir un nombre para realizar el registro.");
                 return;
             }
             localStorage.setItem('usuarioHERA', nombre);
             document.getElementById('titulo-bienvenida').innerText = "Bienvenido, " + nombre;
             showSection('p2-bienvenida');
-            hablarProfesional("Registro exitoso. Es un honor asistirle en sus investigaciones, " + nombre);
+            hablarProfesional("Registro completado. Bienvenida al sistema HERA, " + nombre);
         }
 
         window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
