@@ -5,13 +5,26 @@
     <title>HERA System Pro</title>
     <style>
         :root { --amber-gold: #d9a441; --bg-dark: #14100c; --text: #f5ead2; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: #f5ead2; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        .panel { width: 90%; max-width: 600px; background: #1a150d; border: 1px solid var(--amber-gold); padding: 40px; border-radius: 15px; text-align: center; display: none; }
-        h1, h2 { color: var(--amber-gold); }
-        input { padding: 15px; width: 80%; border-radius: 8px; border: 1px solid var(--amber-gold); background: #000; color: #fff; margin-bottom: 20px; }
-        .btn-gold { background: var(--amber-gold); color: #000; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; margin: 10px; }
-        .btn-reset { background: #555; color: #fff; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; }
-        .visor { background: #000; color: #0f0; padding: 20px; border-radius: 8px; border: 1px solid #333; text-align: left; font-family: monospace; margin: 20px 0; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: #f5ead2; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        
+        /* Panel expandido para ocupar casi toda la ventana */
+        .panel { 
+            width: 95vw; 
+            max-width: 1200px; 
+            background: #1a150d; 
+            border: 2px solid var(--amber-gold); 
+            padding: 30px; 
+            border-radius: 20px; 
+            text-align: center; 
+            display: none; 
+            box-sizing: border-box;
+        }
+        
+        h1, h2 { color: var(--amber-gold); margin-top: 0; }
+        input { padding: 15px; width: 70%; max-width: 500px; border-radius: 8px; border: 1px solid var(--amber-gold); background: #000; color: #fff; margin-bottom: 20px; font-size: 1.2rem; }
+        .btn-gold { background: var(--amber-gold); color: #000; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; margin: 10px; font-size: 1.1rem; }
+        .btn-reset { background: #555; color: #fff; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; margin-top: 20px; }
+        .visor { background: #000; color: #0f0; padding: 30px; border-radius: 8px; border: 1px solid #333; text-align: left; font-family: monospace; margin: 20px 0; font-size: 1.2rem; min-height: 200px; }
     </style>
 </head>
 <body>
@@ -54,7 +67,6 @@
     </div>
 
     <script>
-        // Función de voz femenina
         function hablar(texto) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
@@ -78,7 +90,6 @@
             if(mensaje) hablar(mensaje);
         }
 
-        // Función centralizada para mostrar bienvenida
         function activarBienvenida(nombre) {
             const genero = (nombre.toLowerCase().endsWith('a') && nombre.toLowerCase() !== 'jonas') ? "Bienvenida" : "Bienvenido";
             const textoCompleto = genero + ", " + nombre;
