@@ -15,7 +15,6 @@
 </head>
 <body>
 
-    <!-- P1: INGRESO -->
     <div id="p1-registro" class="panel" style="display: block;">
         <h1>SISTEMA HERA</h1>
         <input type="text" id="input-nombre" placeholder="Nombre de investigador">
@@ -24,41 +23,46 @@
         <button class="btn-gold" onclick="registrarUsuario()" style="background: #8b6b2d;">REGISTRAR</button>
     </div>
 
-    <!-- P2: MENÚ -->
     <div id="p2-bienvenida" class="panel">
         <h2 id="titulo-bienvenida"></h2>
-        <button class="btn-gold" onclick="navegar('p3-traduccion', 'Accediendo al módulo de traducción histórica')">TRADUCCIÓN</button>
-        <button class="btn-gold" onclick="navegar('p4-piezas', 'Consultando datos del servidor en la nube')">DATOS NUBE</button>
+        <button class="btn-gold" onclick="navegar('p3-traduccion', 'Accediendo al módulo de traducción. Analizando manuscritos arqueológicos.')">TRADUCCIÓN</button>
+        <button class="btn-gold" onclick="navegar('p4-piezas', 'Consultando el servidor de la nube. Procesando variables de laboratorio.')">DATOS NUBE</button>
     </div>
 
-    <!-- P3: TRADUCCIÓN -->
     <div id="p3-traduccion" class="panel">
         <h2>Traducción</h2>
-        <div class="visor">Sistema listo para decodificar...</div>
-        <button class="btn-gold" onclick="hablar('Iniciando proceso de traducción no invasiva. Análisis en curso.')">INICIAR ANÁLISIS</button>
-        <button class="btn-gold" onclick="navegar('p2-bienvenida', 'Regresando al menú principal')">VOLVER</button>
+        <div class="visor">Esperando datos de laboratorio...</div>
+        <button class="btn-gold" onclick="hablar('Iniciando escaneo no invasivo. Procesando símbolos antiguos.')">INICIAR ANÁLISIS</button>
+        <button class="btn-gold" onclick="navegar('p2-bienvenida', 'Volviendo al menú principal.')">VOLVER</button>
     </div>
 
-    <!-- P4: NUBE -->
     <div id="p4-piezas" class="panel">
         <h2>Datos Remotos</h2>
-        <div id="visor-nube" class="visor">Conectando...</div>
-        <button class="btn-gold" onclick="navegar('p2-bienvenida', 'Regresando al menú principal')">VOLVER</button>
+        <div id="visor-nube" class="visor">Conexión establecida.</div>
+        <button class="btn-gold" onclick="navegar('p2-bienvenida', 'Volviendo al menú principal.')">VOLVER</button>
     </div>
 
     <script>
-        // Voz Femenina de Alta Calidad
+        // FORZAR VOZ FEMENINA
         function hablar(texto) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
             msg.lang = 'es-ES';
-            msg.rate = 0.9;
-            msg.pitch = 1.2; // Tono más agudo/femenino
+            msg.rate = 0.85; // Velocidad pausada
+            msg.pitch = 1.3; // Tono más agudo, femenino
             
-            // Intenta encontrar voces naturales instaladas
             const voces = window.speechSynthesis.getVoices();
-            msg.voice = voces.find(v => v.name.includes('Google') || v.name.includes('Microsoft Maria') || v.name.includes('Laura')) || voces[0];
             
+            // PRIORIDAD DE VOCES FEMENINAS
+            const vozElegida = voces.find(v => 
+                v.name.includes('Google español') || 
+                v.name.includes('Microsoft Helena') || 
+                v.name.includes('Microsoft Laura') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Paulina')
+            ) || voces[0];
+
+            msg.voice = vozElegida;
             window.speechSynthesis.speak(msg);
         }
 
@@ -66,20 +70,19 @@
             document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             hablar(mensaje);
-            if(id === 'p4-piezas') document.getElementById('visor-nube').innerText = "DATA: ESTRUCTURA_VALIDADA_OK";
         }
 
         function intentarIngresar() {
             const input = document.getElementById('input-nombre').value.trim();
             const registrado = localStorage.getItem('usuarioHERA');
             if (input === registrado && input !== "") {
-                const saludo = (registrado.toLowerCase().endsWith('a')) ? "Bienvenida" : "Bienvenido";
-                document.getElementById('titulo-bienvenida').innerText = saludo + ", " + registrado;
+                const genero = (registrado.toLowerCase().endsWith('a') && registrado.toLowerCase() !== 'jonas') ? "Bienvenida" : "Bienvenido";
+                document.getElementById('titulo-bienvenida').innerText = genero + ", " + registrado;
                 document.getElementById('p1-registro').style.display = 'none';
                 document.getElementById('p2-bienvenida').style.display = 'block';
-                hablar("Identidad confirmada. " + saludo + " de nuevo al sistema, " + registrado);
+                hablar("Identidad verificada. " + genero + " de nuevo, " + registrado + ". El sistema HERA está listo.");
             } else {
-                hablar("Error de autenticación. Usuario no registrado o nombre incorrecto.");
+                hablar("Acceso denegado. Usuario no registrado.");
             }
         }
 
@@ -87,13 +90,15 @@
             const nombre = document.getElementById('input-nombre').value.trim();
             if (nombre !== "") {
                 localStorage.setItem('usuarioHERA', nombre);
-                document.getElementById('titulo-bienvenida').innerText = "Bienvenido, " + nombre;
+                const genero = (nombre.toLowerCase().endsWith('a')) ? "Bienvenida" : "Bienvenido";
+                document.getElementById('titulo-bienvenida').innerText = genero + ", " + nombre;
                 document.getElementById('p1-registro').style.display = 'none';
                 document.getElementById('p2-bienvenida').style.display = 'block';
-                hablar("Registro exitoso. Es un placer conocerle, " + nombre);
+                hablar("Registro completado. " + genero + " al sistema HERA, " + nombre + ". Es un placer trabajar con usted.");
             }
         }
 
+        // Cargar voces al iniciar
         window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
     </script>
 </body>
