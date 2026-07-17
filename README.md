@@ -16,7 +16,6 @@
 </head>
 <body>
 
-    <!-- PAGINA 1: IDENTIFICACIÓN -->
     <div id="p1-registro" class="panel" style="display: block;">
         <h1>SISTEMA HERA</h1>
         <p>Identificación de Investigador</p>
@@ -26,7 +25,6 @@
         <button class="btn-gold" onclick="registrarUsuario()" style="background: #8b6b2d;">REGISTRAR NUEVO</button>
     </div>
 
-    <!-- PAGINA 2: BIENVENIDA -->
     <div id="p2-bienvenida" class="panel">
         <h2 id="titulo-bienvenida"></h2>
         <button class="btn-gold" onclick="showSection('p3-traduccion')">TRADUCCIÓN</button>
@@ -34,7 +32,6 @@
         <button class="btn-gold" style="background: #555;" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
-    <!-- PAGINAS 3 Y 4 -->
     <div id="p3-traduccion" class="panel">
         <h2>Módulo de Traducción</h2>
         <div class="visor">Esperando entrada de datos...</div>
@@ -49,16 +46,21 @@
     </div>
 
     <script>
-        // Función de voz femenina natural
+        // Función para determinar el saludo según el género del nombre
+        function obtenerSaludo(nombre) {
+            const esFemenino = nombre.toLowerCase().endsWith('a') && nombre.toLowerCase() !== 'lucas' && nombre.toLowerCase() !== 'jonas';
+            return esFemenino ? "Bienvenida" : "Bienvenido";
+        }
+
         function hablarProfesional(texto) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
             msg.lang = 'es-ES';
-            msg.rate = 0.9;
-            msg.pitch = 1.2; // Tono femenino
+            msg.rate = 0.95; // Velocidad natural
+            msg.pitch = 1.1; // Tono femenino constante
             
             const voces = window.speechSynthesis.getVoices();
-            // Selección forzada de voces femeninas de alta calidad
+            // Filtro por voces de alta calidad (Google o Microsoft)
             msg.voice = voces.find(v => v.name.includes('Google español') || v.name.includes('Microsoft Laura') || v.name.includes('Microsoft Helena')) || voces[0];
             
             window.speechSynthesis.speak(msg);
@@ -69,31 +71,29 @@
             document.getElementById(id).style.display = 'block';
         }
 
-        // Corrección: Solo permite ingresar si el nombre coincide con el registrado
         function intentarIngresar() {
             const input = document.getElementById('input-nombre').value.trim();
             const registrado = localStorage.getItem('usuarioHERA');
 
             if (input !== "" && input === registrado) {
-                document.getElementById('titulo-bienvenida').innerText = "Bienvenido de nuevo, " + registrado;
+                const saludo = obtenerSaludo(registrado);
+                document.getElementById('titulo-bienvenida').innerText = saludo + ", " + registrado;
                 showSection('p2-bienvenida');
-                hablarProfesional("Identidad verificada. Bienvenida de nuevo, " + registrado);
+                hablarProfesional(saludo + " de nuevo al laboratorio, " + registrado);
             } else {
-                alert("Acceso denegado: El nombre no coincide con ningún registro o no ha sido ingresado.");
-                hablarProfesional("Acceso denegado. Usuario no registrado.");
+                alert("Acceso denegado: El nombre no coincide con el registrado.");
             }
         }
 
         function registrarUsuario() {
             const nombre = document.getElementById('input-nombre').value.trim();
-            if (nombre === "") {
-                alert("Debe escribir un nombre para realizar el registro.");
-                return;
-            }
+            if (nombre === "") return alert("Ingrese un nombre.");
+            
             localStorage.setItem('usuarioHERA', nombre);
-            document.getElementById('titulo-bienvenida').innerText = "Bienvenido, " + nombre;
+            const saludo = obtenerSaludo(nombre);
+            document.getElementById('titulo-bienvenida').innerText = saludo + ", " + nombre;
             showSection('p2-bienvenida');
-            hablarProfesional("Registro completado. Bienvenida al sistema HERA, " + nombre);
+            hablarProfesional("Registro completado. " + saludo + " al sistema HERA, " + nombre);
         }
 
         window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
