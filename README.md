@@ -5,7 +5,7 @@
     <title>HERA System Pro</title>
     <style>
         :root { --amber-gold: #d9a441; --bg-dark: #14100c; --text: #f5ead2; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: #f5ead2; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
         .panel { width: 90%; max-width: 600px; background: #1a150d; border: 1px solid var(--amber-gold); padding: 40px; border-radius: 15px; text-align: center; display: none; }
         h1, h2 { color: var(--amber-gold); }
         input { padding: 15px; width: 80%; border-radius: 8px; border: 1px solid var(--amber-gold); background: #000; color: #fff; margin-bottom: 20px; }
@@ -30,25 +30,25 @@
     <!-- P2: MENÚ PRINCIPAL -->
     <div id="p2-bienvenida" class="panel">
         <h2 id="titulo-bienvenida"></h2>
-        <button class="btn-gold" onclick="navegar('p3-traduccion', 'Accediendo al módulo de traducción.')">TRADUCCIÓN</button>
-        <button class="btn-gold" onclick="navegar('p4-piezas', 'Consultando datos de nube.')">DATOS NUBE</button>
+        <button class="btn-gold" onclick="navegar('p3-traduccion', 'Accediendo al análisis de manuscritos.')">ANÁLISIS DE MANUSCRITOS</button>
+        <button class="btn-gold" onclick="navegar('p4-piezas', 'Accediendo al análisis de piezas.')">ANÁLISIS DE PIEZAS</button>
         <br>
-        <button class="btn-reset" onclick="navegar('p1-registro', 'Regresando al inicio.')">VOLVER</button>
+        <button class="btn-reset" onclick="navegar('p1-registro', 'Volviendo al inicio.')">VOLVER</button>
     </div>
 
-    <!-- P3: TRADUCCIÓN -->
+    <!-- P3: ANÁLISIS DE MANUSCRITOS -->
     <div id="p3-traduccion" class="panel">
-        <h2>Módulo de Traducción</h2>
+        <h2>Análisis de Manuscritos</h2>
         <div class="visor">Esperando datos de laboratorio...</div>
-        <button class="btn-gold" onclick="hablar('Procesando símbolos.')">ANALIZAR</button>
+        <button class="btn-gold" onclick="hablar('Procesando símbolos antiguos y caracteres.')">INICIAR ANÁLISIS</button>
         <br>
         <button class="btn-reset" onclick="navegar('p2-bienvenida', 'Regresando al menú.')">VOLVER</button>
     </div>
 
-    <!-- P4: DATOS NUBE -->
+    <!-- P4: ANÁLISIS DE PIEZAS -->
     <div id="p4-piezas" class="panel">
-        <h2>Resultados Servidor</h2>
-        <div id="visor-nube" class="visor">Conexión establecida.</div>
+        <h2>Análisis de Piezas</h2>
+        <div id="visor-nube" class="visor">Conexión establecida. ESTRUCTURA_VALIDADA_OK.</div>
         <br>
         <button class="btn-reset" onclick="navegar('p2-bienvenida', 'Regresando al menú.')">VOLVER</button>
     </div>
@@ -95,7 +95,7 @@
                 localStorage.setItem('usuarioHERA', nombre);
                 const genero = (nombre.toLowerCase().endsWith('a')) ? "Bienvenida" : "Bienvenido";
                 document.getElementById('titulo-bienvenida').innerText = genero + ", " + nombre;
-                navegar('p2-bienvenida', "Registro completado. " + genero + " al sistema.");
+                navegar('p2-bienvenida', "Registro completado. " + genero + " al sistema HERA.");
             } else {
                 hablar("Por favor, ingrese un nombre válido.");
             }
