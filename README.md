@@ -5,26 +5,36 @@
     <title>HERA System Pro</title>
     <style>
         :root { --amber-gold: #d9a441; --bg-dark: #14100c; --text: #f5ead2; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: #f5ead2; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         
-        /* Panel expandido para ocupar casi toda la ventana */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg-dark); 
+            color: #f5ead2; 
+            margin: 0; 
+            padding: 20px; /* Padding para evitar que toque los bordes */
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
+        
         .panel { 
-            width: 95vw; 
-            max-width: 1200px; 
+            width: 90%; 
+            max-width: 1000px; 
             background: #1a150d; 
             border: 2px solid var(--amber-gold); 
-            padding: 30px; 
+            padding: 40px; 
             border-radius: 20px; 
             text-align: center; 
             display: none; 
-            box-sizing: border-box;
+            box-sizing: border-box; /* Crucial para que el borde no corte el panel */
         }
         
         h1, h2 { color: var(--amber-gold); margin-top: 0; }
-        input { padding: 15px; width: 70%; max-width: 500px; border-radius: 8px; border: 1px solid var(--amber-gold); background: #000; color: #fff; margin-bottom: 20px; font-size: 1.2rem; }
+        input { padding: 15px; width: 80%; max-width: 500px; border-radius: 8px; border: 1px solid var(--amber-gold); background: #000; color: #fff; margin-bottom: 20px; font-size: 1.2rem; }
         .btn-gold { background: var(--amber-gold); color: #000; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; margin: 10px; font-size: 1.1rem; }
         .btn-reset { background: #555; color: #fff; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; margin-top: 20px; }
-        .visor { background: #000; color: #0f0; padding: 30px; border-radius: 8px; border: 1px solid #333; text-align: left; font-family: monospace; margin: 20px 0; font-size: 1.2rem; min-height: 200px; }
+        .visor { background: #000; color: #0f0; padding: 30px; border-radius: 8px; border: 1px solid #333; text-align: left; font-family: monospace; margin: 20px 0; font-size: 1.2rem; min-height: 150px; }
     </style>
 </head>
 <body>
