@@ -12,21 +12,23 @@
         .logo-box { flex: 0 0 200px; text-align: center; }
         .logo-box img { width: 200px; height: 200px; border: 2px solid var(--amber-gold); border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
 
+        /* Panel rectangular alargado */
         .panel { 
-            flex: 0 0 60%; 
+            flex: 0 0 65%; 
             background: #1a150d; 
             border: 2px solid var(--amber-gold); 
             padding: 40px; 
-            border-radius: 20px; 
+            border-radius: 30px; /* Bordes redondeados sutiles */
             text-align: center; 
             display: none;
             box-sizing: border-box;
+            min-height: 400px;
         }
         
         h1 { color: var(--amber-gold); margin-top: 0; border-bottom: 1px solid var(--amber-gold); padding-bottom: 20px; }
-        input { padding: 15px; width: 70%; border-radius: 8px; border: 1px solid var(--amber-gold); background: #000; color: #fff; margin: 20px 0; font-size: 1.2rem; }
+        input { padding: 15px; width: 70%; border-radius: 8px; border: 1px solid var(--amber-gold); background: #000; color: #fff; margin: 30px 0; font-size: 1.2rem; }
         .btn-gold { background: var(--amber-gold); color: #000; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; margin: 10px; font-size: 1.1rem; }
-        .btn-reset { background: #555; color: #fff; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; margin-top: 20px; }
+        .btn-reset { background: #555; color: #fff; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; margin-top: 40px; }
         .visor { background: #000; color: #0f0; padding: 20px; border-radius: 8px; border: 1px solid #333; text-align: left; font-family: monospace; margin: 20px 0; min-height: 150px; }
     </style>
 </head>
@@ -39,7 +41,7 @@
             <p style="color: var(--amber-gold); font-size: 1.1rem; font-weight: bold;">BRIGHT MINDS</p>
         </div>
 
-        <!-- Lado Derecho: Panel Principal -->
+        <!-- Lado Derecho: Panel Rectangular -->
         <div id="p1-registro" class="panel" style="display: block;">
             <h1>SISTEMA HERA</h1>
             <input type="text" id="input-nombre" placeholder="Nombre de investigador">
