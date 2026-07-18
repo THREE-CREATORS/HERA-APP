@@ -43,8 +43,7 @@
 
         <!-- Lado Derecho: Panel Rectangular Alargado -->
         <div id="p1-registro" class="panel" style="display: block;">
-            <h1>SISTEMA HERA</h1>
-            <p style="font-size: 1.2rem; margin-bottom: 20px;">BIENVENID@ A HERA</p>
+            <h1>BIENVENI@ AL SISTEMA HERA</h1>
             <input type="text" id="input-nombre" placeholder="Nombre de investigador">
             <br>
             <button class="btn-gold" onclick="intentarIngresar()">INGRESAR</button>
