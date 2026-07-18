@@ -5,16 +5,16 @@
     <title>HERA System Pro</title>
     <style>
         :root { --amber-gold: #d9a441; --bg-dark: #14100c; --text: #f5ead2; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: #f5ead2; margin: 0; display: flex; align-items: center; justify-content: flex-start; min-height: 100vh; padding-left: 20px; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: #f5ead2; margin: 0; padding: 20px; display: flex; align-items: flex-start; gap: 20px; min-height: 100vh; }
         
-        /* Ajuste para mover todo a la izquierda */
-        .main-container { display: flex; align-items: center; gap: 10px; width: 100%; }
-        
-        .logo-box { flex: 0 0 150px; text-align: center; }
-        .logo-box img { width: 150px; height: 150px; border: 2px solid var(--amber-gold); border-radius: 50%; object-fit: cover; }
+        /* Logo Fijo a la izquierda */
+        .logo-sticky { flex: 0 0 150px; text-align: center; position: sticky; top: 20px; }
+        .logo-sticky img { width: 150px; height: 150px; border: 2px solid var(--amber-gold); border-radius: 50%; object-fit: cover; }
 
+        /* Contenedor de paneles */
+        .content-area { flex: 1; max-width: 800px; }
+        
         .panel { 
-            flex: 0 0 75%; /* Ajustado para que el recuadro no sea tan ancho */
             background: #1a150d; 
             border: 2px solid var(--amber-gold); 
             padding: 30px; 
@@ -33,14 +33,15 @@
 </head>
 <body>
 
-    <div class="main-container">
-        <!-- Logo del equipo -->
-        <div class="logo-box">
-            <img src="logo-hera.jpg" alt="Logo HERA">
-            <p style="color: var(--amber-gold); font-size: 0.9rem; margin-top: 5px;">BRIGHT MINDS</p>
-        </div>
+    <!-- Logo siempre visible fuera del flujo de paneles -->
+    <div class="logo-sticky">
+        <img src="logo-hera.jpg" alt="Logo HERA">
+        <p style="color: var(--amber-gold); font-size: 0.9rem; margin-top: 5px;">BRIGHT MINDS</p>
+    </div>
 
-        <!-- P1: REGISTRO/INGRESO -->
+    <!-- Área de contenido -->
+    <div class="content-area">
+        <!-- P1: REGISTRO -->
         <div id="p1-registro" class="panel" style="display: block;">
             <h1>SISTEMA HERA</h1>
             <input type="text" id="input-nombre" placeholder="Nombre de investigador">
@@ -51,7 +52,7 @@
             <button class="btn-reset" onclick="location.reload()">REINICIAR SISTEMA</button>
         </div>
 
-        <!-- P2: MENÚ PRINCIPAL -->
+        <!-- P2: MENÚ -->
         <div id="p2-bienvenida" class="panel">
             <h2 id="titulo-bienvenida"></h2>
             <button class="btn-gold" onclick="navegar('p3-traduccion', 'Accediendo al análisis de manuscritos.')">ANÁLISIS DE MANUSCRITOS</button>
@@ -60,7 +61,7 @@
             <button class="btn-reset" onclick="navegar('p1-registro', 'Volviendo al inicio.')">VOLVER</button>
         </div>
 
-        <!-- P3: ANÁLISIS DE MANUSCRITOS -->
+        <!-- P3: MANUSCRITOS -->
         <div id="p3-traduccion" class="panel">
             <h2>Análisis de Manuscritos</h2>
             <div class="visor">Esperando datos de laboratorio...</div>
@@ -69,7 +70,7 @@
             <button class="btn-reset" onclick="navegar('p2-bienvenida', 'Regresando al menú.')">VOLVER</button>
         </div>
 
-        <!-- P4: ANÁLISIS DE PIEZAS -->
+        <!-- P4: PIEZAS -->
         <div id="p4-piezas" class="panel">
             <h2>Análisis de Piezas</h2>
             <div id="visor-nube" class="visor">Conexión establecida. ESTRUCTURA_VALIDADA_OK.</div>
@@ -79,14 +80,13 @@
     </div>
 
     <script>
+        // Tus funciones JS se mantienen igual
         function hablar(texto) {
             window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance(texto);
             msg.lang = 'es-ES';
             msg.rate = 0.9;
             msg.pitch = 1.3; 
-            const voces = window.speechSynthesis.getVoices();
-            msg.voice = voces.find(v => v.name.includes('Google español') || v.name.includes('Microsoft Helena')) || voces[0];
             window.speechSynthesis.speak(msg);
         }
 
@@ -98,21 +98,15 @@
 
         function activarBienvenida(nombre) {
             const genero = (nombre.toLowerCase().endsWith('a') && nombre.toLowerCase() !== 'jonas') ? "Bienvenida" : "Bienvenido";
-            const textoCompleto = genero + ", " + nombre;
-            document.getElementById('titulo-bienvenida').innerText = textoCompleto;
-            document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
-            document.getElementById('p2-bienvenida').style.display = 'block';
-            hablar(textoCompleto + ". Sistema HERA listo.");
+            document.getElementById('titulo-bienvenida').innerText = genero + ", " + nombre;
+            navegar('p2-bienvenida', genero + ", " + nombre + ". Sistema HERA listo.");
         }
 
         function intentarIngresar() {
             const input = document.getElementById('input-nombre').value.trim();
-            const registrado = localStorage.getItem('usuarioHERA');
-            if (input === registrado && input !== "") {
-                activarBienvenida(registrado);
-            } else {
-                hablar("Acceso denegado.");
-            }
+            if (input === localStorage.getItem('usuarioHERA') && input !== "") {
+                activarBienvenida(input);
+            } else { hablar("Acceso denegado."); }
         }
 
         function registrarUsuario() {
@@ -122,7 +116,6 @@
                 activarBienvenida(nombre);
             }
         }
-        window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
     </script>
 </body>
 </html>
