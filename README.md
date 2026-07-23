@@ -9,8 +9,21 @@
         
         .main-container { display: flex; align-items: center; gap: 60px; width: 95%; }
         
-        .logo-box { flex: 0 0 200px; text-align: center; }
-        .logo-box img { width: 200px; height: 200px; border: 2px solid var(--amber-gold); border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
+        .logo-box { flex: 0 0 220px; text-align: center; }
+        
+        /* Estilo mejorado para el texto corporativo con los colores del sistema */
+        .brand-title {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff 20%, var(--amber-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(217, 164, 65, 0.3);
+            margin: 0;
+            line-height: 1.2;
+        }
 
         /* Panel en formato rectángulo alargado horizontalmente */
         .panel { 
@@ -35,9 +48,9 @@
 <body>
 
     <div class="main-container">
-        <!-- Lado Izquierdo: Logo y texto -->
+        <!-- Lado Izquierdo: Texto corporativo mejorado -->
         <div class="logo-box">
-            <p style="color: var(--amber-gold); font-size: 1.1rem; font-weight: bold;">BRIGHT MINDS</p>
+            <h2 class="brand-title">BRIGHT<br>MINDS</h2>
         </div>
 
         <!-- Lado Derecho: Panel Rectangular Alargado -->
